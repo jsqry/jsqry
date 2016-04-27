@@ -131,8 +131,7 @@
             var from = norm_idx(index[0]);
             var to = norm_idx(index[1]);
             var step = len == 3 ? index[2] : 1;
-            //console.log('idx',from,to,step, list)
-            for (var i = from; step > 0 && i < to || i > to; i += step)
+            for (var i = from; step > 0 ? i < to : i > to; i += step)
                 res.push(list[i]);
         }
         return res;
