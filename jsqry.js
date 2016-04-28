@@ -119,22 +119,22 @@
     function norm_idx(is_from, idx, len) {
         if (isNaN(idx))
             return is_from ? 0 : len;
-        if (idx < 0)
-            while (idx < 0) idx += len;
+        while (idx < 0) idx += len;
         // TODO: idx >= len?
         return idx;
     }
+
     function calc_index(list, index) {
         // console.info('idx', list, index)
         var res = [];
-        var len = index.length;
-        if (len == 1) {
-            res.push(list[index[0]]);
-        } else if (len >= 2) {
-            var l = list.length;
-            var from = norm_idx(1, index[0], l);
-            var to = norm_idx(0, index[1], l);
-            var step = len == 3 ? index[2] : 1;
+        var idx_cnt = index.length;
+        var len = list.length;
+        if (idx_cnt == 1) {
+            res.push(list[norm_idx(1, index[0], len)]);
+        } else if (idx_cnt >= 2) {
+            var from = norm_idx(1, index[0], len);
+            var to = norm_idx(0, index[1], len);
+            var step = idx_cnt == 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
             for (var i = from; step > 0 ? i < to : i > to; i += step)
                 res.push(list[i]);

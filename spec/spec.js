@@ -20,6 +20,7 @@ describe('jsqry tests', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
         expect(one(l, '[4]')).toEqual('e');
+        expect(one(l, '[-1]')).toEqual('g');
         expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');
         expect(query(l, '[0:7]')).toEqual(l);
         expect(query(l, '[:]')).toEqual(l);
