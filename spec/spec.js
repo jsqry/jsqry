@@ -29,5 +29,11 @@ describe('jsqry tests', function () {
         expect(query(l, '[2:]')).toEqual(['c', 'd', 'e', 'f', 'g']);
         expect(query(l, '[0:7:2]')).toEqual(['a', 'c', 'e', 'g']);
         // expect(query(l, '[::-1]')).toEqual(['g', 'f', 'e', 'd', 'c', 'b', 'a']);
+    });
+
+    it('should flat', function () {
+        expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);
+        expect(query([[{a: 1}, {a: 2}], [{a: 3}]], 'it.a')).toEqual([1, 2, 3]);
+        expect(query([[1, 2, 3], [4, 5], [6]], 'it.it')).toEqual([1, 2, 3, 4, 5, 6]);
     })
 });

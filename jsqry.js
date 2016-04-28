@@ -148,6 +148,8 @@
         if (token.type == type_path_elt) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i]||{})[token.val];
+                if (v === undefined && 'it' == token.val)
+                    v = data[i];
                 if (is_arr(v)) {
                     for (var j = 0; j < v.length; j++) {
                         res.push(v[j]);
