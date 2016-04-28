@@ -22,7 +22,10 @@ describe('jsqry tests', function () {
         expect(one(l, '[4]')).toEqual('e');
         expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');
         expect(query(l, '[0:7]')).toEqual(l);
-        expect(query(l, '[2:5]')).toEqual(['c', 'd', 'e']);
+        expect(query(l, '[:]')).toEqual(l);
+        expect(query(l, '[::]')).toEqual(l);
+        expect(query(l, '[:2]')).toEqual(['a', 'b']);
+        expect(query(l, '[2:]')).toEqual(['c', 'd', 'e', 'f', 'g']);
         expect(query(l, '[0:7:2]')).toEqual(['a', 'c', 'e', 'g']);
         // expect(query(l, '[::-1]')).toEqual(['g', 'f', 'e', 'd', 'c', 'b', 'a']);
     })

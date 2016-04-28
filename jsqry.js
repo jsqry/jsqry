@@ -116,21 +116,26 @@
         return obj;
     }
 
-    function norm_idx(idx, len) {
+    function norm_idx(is_from, idx, len) {
+        if (isNaN(idx))
+            return is_from ? 0 : len;
         if (idx < 0)
             while (idx < 0) idx += len;
         // TODO: idx >= len?
         return idx;
     }
     function calc_index(list, index) {
+        // console.info('idx', list, index)
         var res = [];
         var len = index.length;
         if (len == 1) {
             res.push(list[index[0]]);
         } else if (len >= 2) {
-            var from = norm_idx(index[0]);
-            var to = norm_idx(index[1]);
+            var l = list.length;
+            var from = norm_idx(1, index[0], l);
+            var to = norm_idx(0, index[1], l);
             var step = len == 3 ? index[2] : 1;
+            if (isNaN(step)) step = 1;
             for (var i = from; step > 0 ? i < to : i > to; i += step)
                 res.push(list[i]);
         }
@@ -171,13 +176,7 @@
         return res;
     }
 
-    /*
-     Use instead of select/single.
-     Usage:
-     one(obj,'ll[_.id>=2].name[_.toLowerCase()[0]==$1].length', 's')
-     query(obj,'ll.name{_.toUpperCase()}{_.length}[_>=5][2]')
-     query([{a:1},{a:2},{a:3}], 'a[_>=2]{_+100}')
-     */
+    // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
     window.one = one;
     window.query = query;
 })(window);
