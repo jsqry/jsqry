@@ -10,8 +10,8 @@ describe('jsqry tests', function () {
 
         expect(query({ll: o1}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
 
-        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==$1]', 's')).toEqual('Serg');
-        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==$1].length', 's')).toEqual(4);
+        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
+        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
 
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
     });
@@ -19,6 +19,9 @@ describe('jsqry tests', function () {
     it('should pass array & list comprehensions', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
+        // expect(one([], '[0]')).toEqual(null);// TODO infinite loop!
+        // expect(one([], '[2]')).toEqual(null);
+        // expect(one([], '[-1]')).toEqual(null);
         expect(one(l, '[4]')).toEqual('e');
         expect(one(l, '[-1]')).toEqual('g');
         expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');

@@ -87,27 +87,31 @@
         start_new_tok(null);//close
         return ast;
     }
+
     function one(obj, expr) {
         var res = query.apply(null, arguments);
         return res.length ? res[0] : null;
     }
+
     function query(obj, expr) {
         if (!obj)
             return [];
         if (!is_arr(obj))
             obj = [obj];
 
-        var args = Array.prototype.slice.call(arguments,2);
-        for (var j = 0; j < args.length; j++) {
-            var arg = args[j];
-            var argS;
+        var args = Array.prototype.slice.call(arguments, 2);
+        var parts = expr.split('?');// TODO escaped '?'
+        if (args.length + 1 != parts.length)
+            throw 'Wrong args count!';
+        var r = [];
+        for (var j = 0; j < parts.length; j++) {
+            r.push(parts[j]);
+            var arg = args.shift();
             if (typeof arg == 'string')
-                argS = "'"+arg+"'";
-            else
-                argS = '' + arg;
-            expr = expr.replace(new RegExp('\\$'+(j+1),'g'),argS);
+                arg = '"' + arg + '"';
+            r.push(arg)
         }
-
+        expr = r.join('');
         var ast = tokenize(expr);
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i])
@@ -147,7 +151,7 @@
         var res = [];
         if (token.type == type_path_elt) {
             for (var i = 0; i < data.length; i++) {
-                var v = (data[i]||{})[token.val];
+                var v = (data[i] || {})[token.val];
                 if (v === undefined && 'it' == token.val)
                     v = data[i];
                 if (is_arr(v)) {
