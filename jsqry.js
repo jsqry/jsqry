@@ -123,9 +123,14 @@
     function norm_idx(is_from, idx, len) {
         if (isNaN(idx))
             return is_from ? 0 : len;
-        while (idx < 0) idx += len;
+        if (idx < 0) idx += len;
+        // if (idx < 0) throw 'Index out of range';
         // TODO: idx >= len?
         return idx;
+    }
+
+    function undef_to_null(val) {
+        return val === undefined ? null : val;
     }
 
     function calc_index(list, index) {
@@ -134,14 +139,14 @@
         var idx_cnt = index.length;
         var len = list.length;
         if (idx_cnt == 1) {
-            res.push(list[norm_idx(1, index[0], len)]);
+            res.push(undef_to_null(list[norm_idx(1, index[0], len)]));
         } else if (idx_cnt >= 2) {
             var from = norm_idx(1, index[0], len);
             var to = norm_idx(0, index[1], len);
             var step = idx_cnt == 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
             for (var i = from; step > 0 ? i < to : i > to; i += step)
-                res.push(list[i]);
+                res.push(undef_to_null(list[i]));
         }
         return res;
     }

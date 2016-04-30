@@ -19,9 +19,10 @@ describe('jsqry tests', function () {
     it('should pass array & list comprehensions', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
-        // expect(one([], '[0]')).toEqual(null);// TODO infinite loop!
-        // expect(one([], '[2]')).toEqual(null);
-        // expect(one([], '[-1]')).toEqual(null);
+        expect(one([], '')).toEqual(null);
+        expect(one([], '[0]')).toEqual(null);
+        expect(one([], '[2]')).toEqual(null);
+        expect(one([], '[-1]')).toEqual(null);
         expect(one(l, '[4]')).toEqual('e');
         expect(one(l, '[-1]')).toEqual('g');
         expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');
@@ -30,6 +31,7 @@ describe('jsqry tests', function () {
         expect(query(l, '[::]')).toEqual(l);
         expect(query(l, '[:2]')).toEqual(['a', 'b']);
         expect(query(l, '[2:]')).toEqual(['c', 'd', 'e', 'f', 'g']);
+        expect(query(l, '[2:-2]')).toEqual(['c', 'd', 'e']);
         expect(query(l, '[0:7:2]')).toEqual(['a', 'c', 'e', 'g']);
         // expect(query(l, '[::-1]')).toEqual(['g', 'f', 'e', 'd', 'c', 'b', 'a']);
     });
