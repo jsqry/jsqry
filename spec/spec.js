@@ -33,7 +33,10 @@ describe('jsqry tests', function () {
         expect(query(l, '[2:]')).toEqual(['c', 'd', 'e', 'f', 'g']);
         expect(query(l, '[2:-2]')).toEqual(['c', 'd', 'e']);
         expect(query(l, '[0:7:2]')).toEqual(['a', 'c', 'e', 'g']);
-        // expect(query(l, '[::-1]')).toEqual(['g', 'f', 'e', 'd', 'c', 'b', 'a']);
+        expect(query(l, '[::-1]')).toEqual(['g', 'f', 'e', 'd', 'c', 'b', 'a']);
+        expect(query(l, '[::2]')).toEqual(['a', 'c', 'e', 'g']);
+        expect(query(l, '[::-2]')).toEqual(['g', 'e', 'c', 'a']);
+        expect(query(l, '[::2][::-1]')).toEqual(['g', 'e', 'c', 'a']);
     });
 
     it('should flat', function () {

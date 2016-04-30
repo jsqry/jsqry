@@ -120,9 +120,11 @@
         return obj;
     }
 
-    function norm_idx(is_from, idx, len) {
+    function norm_idx(is_from, idx, len, step) {
         if (isNaN(idx))
-            return is_from ? 0 : len;
+            idx = is_from
+                ? (step > 0 ? 0 : -1)
+                : (step > 0 ? len : -len - 1);
         if (idx < 0) idx += len;
         // if (idx < 0) throw 'Index out of range';
         // TODO: idx >= len?
@@ -141,10 +143,10 @@
         if (idx_cnt == 1) {
             res.push(undef_to_null(list[norm_idx(1, index[0], len)]));
         } else if (idx_cnt >= 2) {
-            var from = norm_idx(1, index[0], len);
-            var to = norm_idx(0, index[1], len);
             var step = idx_cnt == 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
+            var from = norm_idx(1, index[0], len, step);
+            var to = norm_idx(0, index[1], len, step);
             for (var i = from; step > 0 ? i < to : i > to; i += step)
                 res.push(undef_to_null(list[i]));
         }
