@@ -1,4 +1,7 @@
 describe('jsqry tests', function () {
+    var query = jsqry.query;
+    var one = jsqry.one;
+
     it('should pass basic tests', function () {
         var o1 = [
             {id: 1, name: 'Alexander'},
@@ -23,6 +26,10 @@ describe('jsqry tests', function () {
         expect(one([], '[0]')).toEqual(null);
         expect(one([], '[2]')).toEqual(null);
         expect(one([], '[-1]')).toEqual(null);
+        expect(query([], '')).toEqual([]);
+        expect(query([], '[0]')).toEqual([]);
+        expect(query([], '[2]')).toEqual([]);
+        expect(query([], '[-1]')).toEqual([]);
         expect(one(l, '[4]')).toEqual('e');
         expect(one(l, '[-1]')).toEqual('g');
         expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');

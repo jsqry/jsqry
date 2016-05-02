@@ -1,4 +1,4 @@
-(function (window) {
+(function (jsqry) {
     var type_path_elt = 'p';
     var type_filter_func = 'f';
     var type_map_func = 'm';
@@ -6,9 +6,13 @@
     var sub_type_func = 'func';
     var sub_type_index = 'index';
 
+    function defined(v) {
+        return v !== undefined;
+    }
+
     function is_arr(obj) {
         if (obj == null) return false;
-        return obj.length !== undefined && typeof obj != 'string';
+        return defined(obj.length) && typeof obj != 'string';
     }
 
     function func_token(token) {
@@ -131,24 +135,25 @@
         return idx;
     }
 
-    function undef_to_null(val) {
-        return val === undefined ? null : val;
-    }
-
     function calc_index(list, index) {
         // console.info('idx', list, index)
         var res = [];
         var idx_cnt = index.length;
         var len = list.length;
         if (idx_cnt == 1) {
-            res.push(undef_to_null(list[norm_idx(1, index[0], len)]));
+            var val = list[norm_idx(1, index[0], len)];
+            if (defined(val))
+                res.push(val);
         } else if (idx_cnt >= 2) {
             var step = idx_cnt == 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
             var from = norm_idx(1, index[0], len, step);
             var to = norm_idx(0, index[1], len, step);
-            for (var i = from; step > 0 ? i < to : i > to; i += step)
-                res.push(undef_to_null(list[i]));
+            for (var i = from; step > 0 ? i < to : i > to; i += step) {
+                val = list[i];
+                if (defined(val))
+                    res.push(val);
+            }
         }
         return res;
     }
@@ -159,13 +164,13 @@
         if (token.type == type_path_elt) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
-                if (v === undefined && 'it' == token.val)
+                if (!defined(v) && 'it' == token.val)
                     v = data[i];
                 if (is_arr(v)) {
                     for (var j = 0; j < v.length; j++) {
                         res.push(v[j]);
                     }
-                } else if (v !== undefined)
+                } else if (defined(v))
                     res.push(v);
             }
         } else if (token.type == type_filter_func) {
@@ -190,6 +195,6 @@
     }
 
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
-    window.one = one;
-    window.query = query;
-})(window);
+    jsqry.one = one;
+    jsqry.query = query;
+})(jsqry = {});
