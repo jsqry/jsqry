@@ -17,7 +17,7 @@
 
     function func_token(token) {
         token.sub_type = sub_type_func;
-        token.func = Function('_', 'return ' + token.val);
+        token.func = Function('_,i', 'return ' + token.val);
     }
 
     function tokenize(expr) {
@@ -28,14 +28,15 @@
         var map_depth = 0; // nesting of {}
 
         function start_new_tok(tok_type) {
-            if (token.val) {
+            var val = token.val;
+            if (val) {
                 ast.push(token);
                 if (token.type == type_filter_func) {
-                    if (token.val.indexOf('_') >= 0) { // function
+                    if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
                         func_token(token)
-                    } else {
+                    } else { // index/slice
                         token.sub_type = sub_type_index;
-                        var idx = token.val.split(':');
+                        var idx = val.split(':');
                         token.index = idx;
                         for (var j = 0; j < idx.length; j++) {
                             idx[j] = parseInt(idx[j])
@@ -159,7 +160,7 @@
     }
 
     function exec(data, token) {
-        //console.log('Exec', data, token);
+        console.log('Exec', data, token);
         var res = [];
         if (token.type == type_path_elt) {
             for (var i = 0; i < data.length; i++) {
@@ -177,7 +178,7 @@
             if (token.sub_type == sub_type_func) {
                 for (i = 0; i < data.length; i++) {
                     v = data[i];
-                    if (token.func(v)) {
+                    if (token.func(v, i)) {
                         res.push(v);
                     }
                 }
@@ -187,7 +188,7 @@
         } else if (token.type == type_map_func) {
             for (i = 0; i < data.length; i++) {
                 v = data[i];
-                res.push(token.func(v));
+                res.push(token.func(v, i));
             }
         }
 
