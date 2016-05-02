@@ -1,10 +1,10 @@
 (function (jsqry) {
-    var type_path_elt = 'p';
-    var type_filter_func = 'f';
-    var type_map_func = 'm';
+    var TYPE_PATH = 'p';
+    var TYPE_FILTER = 'f';
+    var TYPE_MAP = 'm';
 
-    var sub_type_func = 'func';
-    var sub_type_index = 'index';
+    var SUB_TYPE_FUNC = 'func';
+    var SUB_TYPE_INDEX = 'index';
 
     function defined(v) {
         return v !== undefined;
@@ -16,13 +16,13 @@
     }
 
     function func_token(token) {
-        token.sub_type = sub_type_func;
+        token.sub_type = SUB_TYPE_FUNC;
         token.func = Function('_,i', 'return ' + token.val);
     }
 
     function tokenize(expr) {
         var ast = [];
-        var token = {type: type_path_elt, val: ''};
+        var token = {type: TYPE_PATH, val: ''};
 
         var filter_depth = 0; // nesting of []
         var map_depth = 0; // nesting of {}
@@ -31,18 +31,18 @@
             var val = token.val;
             if (val) {
                 ast.push(token);
-                if (token.type == type_filter_func) {
+                if (token.type == TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
                         func_token(token)
                     } else { // index/slice
-                        token.sub_type = sub_type_index;
+                        token.sub_type = SUB_TYPE_INDEX;
                         var idx = val.split(':');
                         token.index = idx;
                         for (var j = 0; j < idx.length; j++) {
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (token.type == type_map_func) {
+                } else if (token.type == TYPE_MAP) {
                     func_token(token);
                 }
             }
@@ -52,14 +52,14 @@
         for (var i = 0; i < expr.length; i++) {
             var l = expr[i];
             if (l == '.') {
-                if (token.type == type_path_elt) {
-                    start_new_tok(type_path_elt);
+                if (token.type == TYPE_PATH) {
+                    start_new_tok(TYPE_PATH);
                 } else {
                     token.val += l;
                 }
             } else if (l == '[') {
-                if (filter_depth == 0 && token.type == type_path_elt) {
-                    start_new_tok(type_filter_func);
+                if (filter_depth == 0 && token.type == TYPE_PATH) {
+                    start_new_tok(TYPE_FILTER);
                 } else {
                     token.val += l;
                 }
@@ -67,13 +67,13 @@
             } else if (l == ']') {
                 filter_depth--;
                 if (filter_depth == 0) {
-                    start_new_tok(type_path_elt);
+                    start_new_tok(TYPE_PATH);
                 } else {
                     token.val += l;
                 }
             } else if (l == '{') {
-                if (map_depth == 0 && token.type == type_path_elt) {
-                    start_new_tok(type_map_func);
+                if (map_depth == 0 && token.type == TYPE_PATH) {
+                    start_new_tok(TYPE_MAP);
                 } else {
                     token.val += l;
                 }
@@ -81,7 +81,7 @@
             } else if (l == '}') {
                 map_depth--;
                 if (map_depth == 0) {
-                    start_new_tok(type_path_elt);
+                    start_new_tok(TYPE_PATH);
                 } else {
                     token.val += l;
                 }
@@ -160,9 +160,9 @@
     }
 
     function exec(data, token) {
-        console.log('Exec', data, token);
+        // console.log('Exec', data, token);
         var res = [];
-        if (token.type == type_path_elt) {
+        if (token.type == TYPE_PATH) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
                 if (!defined(v) && 'it' == token.val)
@@ -174,18 +174,18 @@
                 } else if (defined(v))
                     res.push(v);
             }
-        } else if (token.type == type_filter_func) {
-            if (token.sub_type == sub_type_func) {
+        } else if (token.type == TYPE_FILTER) {
+            if (token.sub_type == SUB_TYPE_FUNC) {
                 for (i = 0; i < data.length; i++) {
                     v = data[i];
                     if (token.func(v, i)) {
                         res.push(v);
                     }
                 }
-            } else if (token.sub_type == sub_type_index) {
+            } else if (token.sub_type == SUB_TYPE_INDEX) {
                 res = calc_index(data, token.index);
             }
-        } else if (token.type == type_map_func) {
+        } else if (token.type == TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
                 v = data[i];
                 res.push(token.func(v, i));
