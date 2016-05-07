@@ -2,22 +2,24 @@ describe('jsqry tests', function () {
     var query = jsqry.query;
     var one = jsqry.one;
 
-    it('should pass basic tests', function () {
-        var o1 = [
-            {id: 1, name: 'Alexander'},
-            {id: 2, name: 'Serg'},
-            {id: 3, name: 'Vlad'},
-            {id: 4, name: 'Zachary'},
-            {id: 5, name: 'Mihael'}
-        ];
+    var o1 = [
+        {id: 1, name: 'Alexander'},
+        {id: 2, name: 'Serg'},
+        {id: 3, name: 'Vlad'},
+        {id: 4, name: 'Zachary'},
+        {id: 5, name: 'Mihael'}
+    ];
 
+    function basicTests () {
         expect(query({ll: o1}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
 
         expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
         expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
 
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
-    });
+    }
+    it('should pass basic tests', basicTests);
+    it('should pass basic tests (test caching)', basicTests);
 
     it('should pass array indexing & slicing', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
