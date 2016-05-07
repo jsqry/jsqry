@@ -20,10 +20,10 @@ describe('jsqry tests', function () {
 
     function basicTests () {
         expect(query({ll: o1}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
-
         expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
+        expect(query(o1, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
         expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
-
+        
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
     }
     it('should pass basic tests', basicTests);

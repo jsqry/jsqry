@@ -35,13 +35,8 @@
         var parts = expr.split('?');// TODO escaped '?'
         if (args.length + 1 != parts.length)
             throw 'Wrong args count!';
-        var r = [];
-        for (var j = 0; j < parts.length; j++) {
-            r.push(parts[j]);
-            if (j < parts.length - 1)
-                r.push('args[' + j + ']')
-        }
-        expr = r.join('');
+
+        var arg_idx = 0;
 
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
@@ -50,7 +45,6 @@
         var map_depth = 0; // nesting of {}
 
         function start_new_tok(tok_type) {
-            console.info('start_new_tok',tok_type,JSON.stringify(token))
             var val = token.val;
             if (val) {
                 ast.push(token);
@@ -80,6 +74,10 @@
                 } else {
                     token.val += l;
                 }
+            } else if (l == '?') {
+                if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
+                    throw '? at wrong position';
+                token.val += 'args[' + arg_idx++ + ']';
             } else if (l == '[') {
                 if (filter_depth == 0 && token.type == TYPE_PATH) {
                     start_new_tok(TYPE_FILTER);
