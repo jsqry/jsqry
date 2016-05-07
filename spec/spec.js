@@ -10,6 +10,14 @@ describe('jsqry tests', function () {
         {id: 5, name: 'Mihael'}
     ];
 
+    it('should handle placeholders', function () {
+        expect(one(o1, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(one(o1, '{?}', 1)).toEqual(1);
+        expect(one(o1, '{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(one(o1, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(query(o1, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+    });
+
     function basicTests () {
         expect(query({ll: o1}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
 

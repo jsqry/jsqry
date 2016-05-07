@@ -50,6 +50,7 @@
         var map_depth = 0; // nesting of {}
 
         function start_new_tok(tok_type) {
+            console.info('start_new_tok',tok_type,JSON.stringify(token))
             var val = token.val;
             if (val) {
                 ast.push(token);
@@ -87,8 +88,7 @@
                 }
                 filter_depth++;
             } else if (l == ']') {
-                filter_depth--;
-                if (filter_depth == 0) {
+                if (token.type == TYPE_FILTER && --filter_depth == 0) {
                     start_new_tok(TYPE_PATH);
                 } else {
                     token.val += l;
@@ -101,8 +101,7 @@
                 }
                 map_depth++;
             } else if (l == '}') {
-                map_depth--;
-                if (map_depth == 0) {
+                if (token.type == TYPE_MAP && --map_depth == 0) {
                     start_new_tok(TYPE_PATH);
                 } else {
                     token.val += l;
