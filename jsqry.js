@@ -1,4 +1,9 @@
-(function (jsqry) {
+jsqry = (function () {
+    var jsqry = {
+        cache: true,
+        ast_cache: {}
+    };
+
     var TYPE_PATH = 'p';
     var TYPE_FILTER = 'f';
     var TYPE_MAP = 'm';
@@ -20,7 +25,23 @@
         token.func = Function('_,i,args', 'return ' + token.val);
     }
 
-    function tokenize(expr) {
+    function tokenize(expr, args) {
+        var cached;
+        if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
+            return cached;
+
+        var expr0 = expr;
+        var parts = expr.split('?');// TODO escaped '?'
+        if (args.length + 1 != parts.length)
+            throw 'Wrong args count!';
+        var r = [];
+        for (var j = 0; j < parts.length; j++) {
+            r.push(parts[j]);
+            if (j < parts.length - 1)
+                r.push('args[' + j + ']')
+        }
+        expr = r.join('');
+
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
 
@@ -90,6 +111,8 @@
             }
         }
         start_new_tok(null);//close
+        if (jsqry.cache)
+            jsqry.ast_cache[expr0] = ast;
         return ast;
     }
 
@@ -105,17 +128,7 @@
             obj = [obj];
 
         var args = Array.prototype.slice.call(arguments, 2);
-        var parts = expr.split('?');// TODO escaped '?'
-        if (args.length + 1 != parts.length)
-            throw 'Wrong args count!';
-        var r = [];
-        for (var j = 0; j < parts.length; j++) {
-            r.push(parts[j]);
-            if (j < parts.length - 1)
-                r.push('args[' + j + ']')
-        }
-        expr = r.join('');
-        var ast = tokenize(expr);
+        var ast = tokenize(expr, args);
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
         }
@@ -196,4 +209,5 @@
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
     jsqry.one = one;
     jsqry.query = query;
-})(jsqry = {});
+    return jsqry;
+})();
