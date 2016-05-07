@@ -19,7 +19,7 @@ describe('jsqry tests', function () {
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
     });
 
-    it('should pass array & list comprehensions', function () {
+    it('should pass array indexing & slicing', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
         expect(one([], '')).toEqual(null);
@@ -46,13 +46,13 @@ describe('jsqry tests', function () {
         expect(query(l, '[::2][::-1]')).toEqual(['g', 'e', 'c', 'a']);
     });
 
-    it('should flat', function () {
+    it('should support flatting', function () {
         expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);
         expect(query([[{a: 1}, {a: 2}], [{a: 3}]], 'it.a')).toEqual([1, 2, 3]);
         expect(query([[1, 2, 3], [4, 5], [6]], 'it.it')).toEqual([1, 2, 3, 4, 5, 6]);
     });
 
-    it('should support index', function () {
+    it('should support index parameter', function () {
         expect(query([0, 0, 0, 0, 0], '{i}')).toEqual([0, 1, 2, 3, 4]);
         expect(query(['a', 'b', 'c', 'd', 'e'], '[i%2==0]')).toEqual(['a', 'c', 'e']);
     })

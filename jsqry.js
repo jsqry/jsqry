@@ -17,7 +17,7 @@
 
     function func_token(token) {
         token.sub_type = SUB_TYPE_FUNC;
-        token.func = Function('_,i', 'return ' + token.val);
+        token.func = Function('_,i,args', 'return ' + token.val);
     }
 
     function tokenize(expr) {
@@ -111,15 +111,13 @@
         var r = [];
         for (var j = 0; j < parts.length; j++) {
             r.push(parts[j]);
-            var arg = args.shift();
-            if (typeof arg == 'string')
-                arg = '"' + arg + '"';
-            r.push(arg)
+            if (j < parts.length - 1)
+                r.push('args[' + j + ']')
         }
         expr = r.join('');
         var ast = tokenize(expr);
         for (var i = 0; i < ast.length; i++) {
-            obj = exec(obj, ast[i])
+            obj = exec(obj, ast[i], args)
         }
 
         return obj;
@@ -159,7 +157,7 @@
         return res;
     }
 
-    function exec(data, token) {
+    function exec(data, token, args) {
         // console.log('Exec', data, token);
         var res = [];
         if (token.type == TYPE_PATH) {
@@ -178,7 +176,7 @@
             if (token.sub_type == SUB_TYPE_FUNC) {
                 for (i = 0; i < data.length; i++) {
                     v = data[i];
-                    if (token.func(v, i)) {
+                    if (token.func(v, i, args)) {
                         res.push(v);
                     }
                 }
@@ -188,7 +186,7 @@
         } else if (token.type == TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
                 v = data[i];
-                res.push(token.func(v, i));
+                res.push(token.func(v, i, args));
             }
         }
 
