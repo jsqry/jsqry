@@ -1,8 +1,9 @@
-jsqry = (function () {
-    var jsqry = {
-        cache: true,
-        ast_cache: {}
-    };
+(function (jsqry) {
+    // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
+    jsqry.one = one;
+    jsqry.query = query;
+    jsqry.cache = true;
+    jsqry.ast_cache = {};
 
     var TYPE_PATH = 'p';
     var TYPE_FILTER = 'f';
@@ -205,9 +206,4 @@ jsqry = (function () {
 
         return res;
     }
-
-    // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
-    jsqry.one = one;
-    jsqry.query = query;
-    return jsqry;
-})();
+})(typeof exports != 'undefined' ? exports : jsqry = {});
