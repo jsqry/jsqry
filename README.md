@@ -5,8 +5,8 @@ Before:
 ```js
 var name;
 for (var i = 0; i < users.length; i++) {
-    if (users.id == 123) {
-        name = users.name;
+    if (users[i].id == 123) {
+        name = users[i].name;
     }
 }
 
