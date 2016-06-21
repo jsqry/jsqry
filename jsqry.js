@@ -139,9 +139,8 @@
             idx = is_from
                 ? (step > 0 ? 0 : -1)
                 : (step > 0 ? len : -len - 1);
-        if (idx < 0) idx += len;
-        // if (idx < 0) throw 'Index out of range';
-        // TODO: idx >= len?
+        if (idx < 0)
+            idx += len;
         return idx;
     }
 
