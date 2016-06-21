@@ -7,6 +7,7 @@ var name;
 for (var i = 0; i < users.length; i++) {
     if (users[i].id == 123) {
         name = users[i].name;
+        break;
     }
 }
 

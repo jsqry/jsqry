@@ -13,7 +13,7 @@
     var SUB_TYPE_INDEX = 'index';
 
     function defined(v) {
-        return v !== undefined;
+        return typeof v != 'undefined';
     }
 
     function is_arr(obj) {
