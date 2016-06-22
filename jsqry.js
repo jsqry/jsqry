@@ -179,7 +179,7 @@
                     for (var j = 0; j < v.length; j++) {
                         res.push(v[j]);
                     }
-                } else if (defined(v))
+                } else if (defined(v) && v !== null)
                     res.push(v);
             }
         } else if (token.type == TYPE_FILTER) {

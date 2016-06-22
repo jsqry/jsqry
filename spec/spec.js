@@ -24,7 +24,7 @@ describe('jsqry tests', function () {
                     {name:'Service 4', visible:false},
                     {name:'Service 5', visible:true}
                 ]},
-            // {name:'Fac 3', services: null},
+            {name:'Fac 3', services: null},
             {name:'Fac 4'}
         ]
     };
@@ -47,6 +47,8 @@ describe('jsqry tests', function () {
 
         expect(query(hotel, 'facilities[_.services]').length).toEqual(2);
         expect(query(hotel, 'facilities[_.services].name')).toEqual(['Fac 1', 'Fac 2']);
+        expect(query(hotel, 'facilities.services').length).toEqual(5);
+        expect(query(hotel, 'facilities.services.name')).toEqual(['Service 1', 'Service 2', 'Service 3', 'Service 4', 'Service 5']);
         expect(query(hotel, 'facilities.services[_.visible!==false].name')).toEqual(['Service 2', 'Service 3', 'Service 5']);
     }
     it('should pass basic tests (1st pass)', basicTests);
