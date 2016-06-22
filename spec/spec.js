@@ -10,6 +10,25 @@ describe('jsqry tests', function () {
         {id: 5, name: 'Michael'}
     ];
 
+    var hotel = {
+        name: 'Name',
+        facilities: [
+            {name:'Fac 1',
+                services: [
+                    {name:'Service 1', visible:false},
+                    {name:'Service 2'}
+                ]},
+            {name:'Fac 2',
+                services: [
+                    {name:'Service 3'},
+                    {name:'Service 4', visible:false},
+                    {name:'Service 5', visible:true}
+                ]},
+            // {name:'Fac 3', services: null},
+            {name:'Fac 4'}
+        ]
+    };
+
     it('should handle placeholders', function () {
         expect(one(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
         expect(one(people, '{?}', 1)).toEqual(1);
@@ -23,8 +42,12 @@ describe('jsqry tests', function () {
         expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
         expect(query(people, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
         expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
-        
-        expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
+
+        expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103]);
+
+        expect(query(hotel, 'facilities[_.services]').length).toEqual(2);
+        expect(query(hotel, 'facilities[_.services].name')).toEqual(['Fac 1', 'Fac 2']);
+        expect(query(hotel, 'facilities.services[_.visible!==false].name')).toEqual(['Service 2', 'Service 3', 'Service 5']);
     }
     it('should pass basic tests (1st pass)', basicTests);
     it('should pass basic tests (test caching)', basicTests);
