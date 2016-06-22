@@ -100,7 +100,6 @@ describe('jsqry tests', function () {
             '{ i % 15 == 0 ?? ? : i % 3 == 0 ?? ? : i % 5 == 0 ?? ? : i }', 'FizzBuzz', 'Fizz', 'Buzz')).toEqual(
             [ 'FizzBuzz', 1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz', 16, 17, 'Fizz', 19 ]);
 
-        jsqry.cache = false;
         expect(query(100, '{?+?+?+?}', 1, 2, 3, 4)).toEqual([10]);
         expect(function () {query(100, '{?+?+?+?}', 1, 2)}).toThrow('Wrong args count!');
         expect(function () {one(100, '{?+?+?+?}', 1, 2, 3, 4, 5)}).toThrow('Wrong args count!');

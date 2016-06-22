@@ -26,7 +26,7 @@
         token.func = Function('_,i,args', 'return ' + token.val);
     }
 
-    function tokenize(expr, args) {
+    function tokenize(expr) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
             return cached;
@@ -107,10 +107,10 @@
             }
         }
 
-        if (args.length != arg_idx)
-            throw 'Wrong args count!';
-
         start_new_tok(null);//close
+
+        ast.args_count = arg_idx;
+
         if (jsqry.cache)
             jsqry.ast_cache[expr0] = ast;
         return ast;
@@ -128,7 +128,9 @@
             obj = [obj];
 
         var args = Array.prototype.slice.call(arguments, 2);
-        var ast = tokenize(expr, args);
+        var ast = tokenize(expr);
+        if (args.length != ast.args_count)
+            throw 'Wrong args count!';
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
         }
