@@ -1,4 +1,4 @@
-(function (jsqry) {
+(function (jsqry, undefined) {
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
     jsqry.one = one;
     jsqry.query = query;
@@ -13,7 +13,7 @@
     var SUB_TYPE_INDEX = 'index';
 
     function defined(v) {
-        return typeof v != 'undefined';
+        return v !== undefined;
     }
 
     function is_arr(obj) {

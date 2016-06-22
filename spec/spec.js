@@ -2,31 +2,31 @@ describe('jsqry tests', function () {
     var query = jsqry.query;
     var one = jsqry.one;
 
-    var o1 = [
-        {id: 1, name: 'Alexander'},
+    var people = [
+        {id: 1, name: 'Alex'},
         {id: 2, name: 'Serg'},
         {id: 3, name: 'Vlad'},
         {id: 4, name: 'Zachary'},
-        {id: 5, name: 'Mihael'}
+        {id: 5, name: 'Michael'}
     ];
 
     it('should handle placeholders', function () {
-        expect(one(o1, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
-        expect(one(o1, '{?}', 1)).toEqual(1);
-        expect(one(o1, '{?+?+?}', 1, 2, 4)).toEqual(7);
-        expect(one(o1, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
-        expect(query(o1, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(one(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(one(people, '{?}', 1)).toEqual(1);
+        expect(one(people, '{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(one(people, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(query(people, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
     });
 
     function basicTests () {
-        expect(query({ll: o1}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
-        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
-        expect(query(o1, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
-        expect(one(o1, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
+        expect(query({ll: people}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
+        expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
+        expect(query(people, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
+        expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
         
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103])
     }
-    it('should pass basic tests', basicTests);
+    it('should pass basic tests (1st pass)', basicTests);
     it('should pass basic tests (test caching)', basicTests);
 
     it('should pass array indexing & slicing', function () {
