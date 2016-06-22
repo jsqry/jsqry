@@ -92,7 +92,7 @@ describe('jsqry tests', function () {
         expect(query(['a', 'b', 'c', 'd', 'e'], '[i%2==0]')).toEqual(['a', 'c', 'e']);
     });
 
-    it('should correctly handle "?"', function () {
+    it("should correctly handle '?'", function () {
         expect(query(Array(20),
             '{ i % 15 == 0 ?? "FizzBuzz" : i % 3 == 0 ?? "Fizz" : i % 5 == 0 ?? "Buzz" : i }')).toEqual(
             [ 'FizzBuzz', 1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz', 16, 17, 'Fizz', 19 ]);
@@ -100,8 +100,13 @@ describe('jsqry tests', function () {
             '{ i % 15 == 0 ?? ? : i % 3 == 0 ?? ? : i % 5 == 0 ?? ? : i }', 'FizzBuzz', 'Fizz', 'Buzz')).toEqual(
             [ 'FizzBuzz', 1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz', 16, 17, 'Fizz', 19 ]);
 
+        expect(one(1, '{ "??" + _ + "??" }')).toEqual('?1?');
+        expect(one('How are you', '{ _ + ", " + ? + "??" }', 'Peter')).toEqual('How are you, Peter?');
+
         expect(query(100, '{?+?+?+?}', 1, 2, 3, 4)).toEqual([10]);
         expect(function () {query(100, '{?+?+?+?}', 1, 2)}).toThrow('Wrong args count!');
         expect(function () {one(100, '{?+?+?+?}', 1, 2, 3, 4, 5)}).toThrow('Wrong args count!');
+        expect(function () {query(100, 'a.?.b')}).toThrow('? at wrong position');
+        expect(function () {one(100, 'a.b[0].c?', 1, 2)}).toThrow('? at wrong position');
     })
 });
