@@ -32,15 +32,9 @@
             return cached;
 
         var expr0 = expr;
-        var parts = expr.split('?');// TODO escaped '?'
-        if (args.length + 1 != parts.length)
-            throw 'Wrong args count!';
-
         var arg_idx = 0;
-
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
-
         var filter_depth = 0; // nesting of []
         var map_depth = 0; // nesting of {}
 
@@ -77,7 +71,11 @@
             } else if (l == '?') {
                 if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
                     throw '? at wrong position';
-                token.val += 'args[' + arg_idx++ + ']';
+                if (expr[i+1] == '?') {
+                    token.val += l;
+                    i++;
+                } else
+                    token.val += 'args[' + arg_idx++ + ']';
             } else if (l == '[') {
                 if (filter_depth == 0 && token.type == TYPE_PATH) {
                     start_new_tok(TYPE_FILTER);
@@ -108,6 +106,10 @@
                 token.val += l;
             }
         }
+
+        if (args.length != arg_idx)
+            throw 'Wrong args count!';
+
         start_new_tok(null);//close
         if (jsqry.cache)
             jsqry.ast_cache[expr0] = ast;
