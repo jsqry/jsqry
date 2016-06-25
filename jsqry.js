@@ -130,7 +130,7 @@
         var args = Array.prototype.slice.call(arguments, 2);
         var ast = tokenize(expr);
         if (args.length != ast.args_count)
-            throw 'Wrong args count!';
+            throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
         }
