@@ -13,7 +13,7 @@ var people = [
 function doWork(N) {
     var v = 0;
     for (var i=0; i<N; i++)
-        v += jsqry.one(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's');// +=4
+        v += jsqry.first(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's');// +=4
     return v;
 }
 

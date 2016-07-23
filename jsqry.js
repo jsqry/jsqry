@@ -1,6 +1,6 @@
 (function (jsqry, undefined) {
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
-    jsqry.one = one;
+    jsqry.first = first;
     jsqry.query = query;
     jsqry.cache = true;
     jsqry.ast_cache = {};
@@ -26,7 +26,7 @@
         token.func = Function('_,i,args', 'return ' + token.val);
     }
 
-    function tokenize(expr) {
+    function parse(expr) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
             return cached;
@@ -116,7 +116,7 @@
         return ast;
     }
 
-    function one(obj, expr) {
+    function first(obj, expr) {
         var res = query.apply(null, arguments);
         return res.length ? res[0] : null;
     }
@@ -128,7 +128,7 @@
             obj = [obj];
 
         var args = Array.prototype.slice.call(arguments, 2);
-        var ast = tokenize(expr);
+        var ast = parse(expr);
         if (args.length != ast.args_count)
             throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {

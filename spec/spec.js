@@ -1,6 +1,6 @@
 describe('Jsqry tests', function () {
     var query = jsqry.query;
-    var one = jsqry.one;
+    var first = jsqry.first;
 
     var people = [
         {id: 1, name: 'Alex'},
@@ -30,17 +30,17 @@ describe('Jsqry tests', function () {
     };
 
     it('Should handle placeholders', function () {
-        expect(one(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
-        expect(one(people, '{?}', 1)).toEqual(1);
-        expect(one(people, '{?+?+?}', 1, 2, 4)).toEqual(7);
-        expect(one(people, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(first(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(first(people, '{?}', 1)).toEqual(1);
+        expect(first(people, '{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(first(people, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
         expect(query(people, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
 
         expect(query(100, '{?+?+?+?}', 1, 2, 3, 4)).toEqual([10]);
         expect(function () {query(100, '{?+?+?+?}', 1, 2)}).toThrow('Wrong args count');
-        expect(function () {one(100, '{?+?+?+?}', 1, 2, 3, 4, 5)}).toThrow('Wrong args count');
+        expect(function () {first(100, '{?+?+?+?}', 1, 2, 3, 4, 5)}).toThrow('Wrong args count');
         expect(function () {query(100, 'a.?.b')}).toThrow('? at wrong position');
-        expect(function () {one(100, 'a.b[0].c?', 1, 2)}).toThrow('? at wrong position');
+        expect(function () {first(100, 'a.b[0].c?', 1, 2)}).toThrow('? at wrong position');
 
         function f1(elt) { return elt > 2 }
         function f2(elt) { return elt + 10 }
@@ -55,15 +55,15 @@ describe('Jsqry tests', function () {
             '{ i % 15 == 0 ?? ? : i % 3 == 0 ?? ? : i % 5 == 0 ?? ? : i }', 'FizzBuzz', 'Fizz', 'Buzz')).toEqual(
             [ 'FizzBuzz', 1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz', 16, 17, 'Fizz', 19 ]);
 
-        expect(one(1, '{ "??" + _ + "??" }')).toEqual('?1?');
-        expect(one('How are you', '{ _ + ", " + ? + "??" }', 'Peter')).toEqual('How are you, Peter?');
+        expect(first(1, '{ "??" + _ + "??" }')).toEqual('?1?');
+        expect(first('How are you', '{ _ + ", " + ? + "??" }', 'Peter')).toEqual('How are you, Peter?');
     });
 
     function basicTests () {
         expect(query({ll: people}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
-        expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
+        expect(first(people, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
         expect(query(people, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
-        expect(one(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
+        expect(first(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
 
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103]);
 
@@ -79,17 +79,17 @@ describe('Jsqry tests', function () {
     it('Should pass array indexing & slicing', function () {
         var l = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 
-        expect(one([], '')).toEqual(null);
-        expect(one([], '[0]')).toEqual(null);
-        expect(one([], '[2]')).toEqual(null);
-        expect(one([], '[-1]')).toEqual(null);
+        expect(first([], '')).toEqual(null);
+        expect(first([], '[0]')).toEqual(null);
+        expect(first([], '[2]')).toEqual(null);
+        expect(first([], '[-1]')).toEqual(null);
         expect(query([], '')).toEqual([]);
         expect(query([], '[0]')).toEqual([]);
         expect(query([], '[2]')).toEqual([]);
         expect(query([], '[-1]')).toEqual([]);
-        expect(one(l, '[4]')).toEqual('e');
-        expect(one(l, '[-1]')).toEqual('g');
-        expect(one(l, '[4]{_.toUpperCase()}')).toEqual('E');
+        expect(first(l, '[4]')).toEqual('e');
+        expect(first(l, '[-1]')).toEqual('g');
+        expect(first(l, '[4]{_.toUpperCase()}')).toEqual('E');
         expect(query(l, '[0:7]')).toEqual(l);
         expect(query(l, '[:]')).toEqual(l);
         expect(query(l, '[::]')).toEqual(l);
