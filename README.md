@@ -25,4 +25,4 @@ Features include:
 1. Mapping
 1. Python-style array indexing & slicing
 
-More examples of usage: [spec.js](/spec/spec.js)
+More examples of usage: [spec.js](/spec.js)
