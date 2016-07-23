@@ -196,7 +196,16 @@
             return res;
         },
         u: function (pairs) {
-
+            var exists = {};
+            var res = [];
+            for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i];
+                if (!exists[p[1]]){
+                    exists[p[1]] = 1;
+                    res.push(p[0]);
+                }
+            }
+            return res;
         }
     };
     function exec(data, token, args) {

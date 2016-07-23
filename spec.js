@@ -120,4 +120,12 @@ describe('Jsqry tests', function () {
         expect(query([{id:2,val:22}, {id:4,val:44}, {id:1,val:11}, {id:5,val:55}, {id:3,val:33}],
             ':s(-_.id).val')).toEqual([55, 44, 33, 22, 11]);
     });
+    it('Should support unique', function () {
+        expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ':u(_)')).toEqual([2, 4, 1, 5, 3]);
+        expect(query([[2], [4], [1], [4], [5], [3], [3], [1], [4], [2], [5]], 'it:u(_)')).toEqual([2, 4, 1, 5, 3]);
+        var data = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
+        expect(query(data, ':u(_.id):s(_.val):u(_.val).val')).toEqual(['A','B']);
+        expect(query(data, ':u(_.id):u(_.val):s(_.val).val')).toEqual(['A','B']);
+        expect(query(data, '{ {a:_} }.a:u(_.id):u(_.val):s(_.val).val')).toEqual(['A','B']);
+    });
 });
