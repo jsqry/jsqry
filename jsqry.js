@@ -4,8 +4,10 @@
     jsqry.query = query;
     jsqry.cache = true;
     jsqry.ast_cache = {};
+    jsqry.fn = fn;
 
     var TYPE_PATH = 'p';
+    var TYPE_CALL = 'c';
     var TYPE_FILTER = 'f';
     var TYPE_MAP = 'm';
 
@@ -37,10 +39,11 @@
         var token = {type: TYPE_PATH, val: ''};
         var filter_depth = 0; // nesting of []
         var map_depth = 0; // nesting of {}
+        var call_depth = 0; // nesting of ()
 
         function start_new_tok(tok_type) {
             var val = token.val;
-            if (val) {
+            if (val) { // handle prev token
                 ast.push(token);
                 if (token.type == TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
@@ -53,7 +56,7 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (token.type == TYPE_MAP) {
+                } else if (token.type == TYPE_MAP || token.type == TYPE_CALL) {
                     func_token(token);
                 }
             }
@@ -63,11 +66,15 @@
         for (var i = 0; i < expr.length; i++) {
             var l = expr[i];
             if (l == '.') {
-                if (token.type == TYPE_PATH) {
+                if (token.type == TYPE_PATH)
                     start_new_tok(TYPE_PATH);
-                } else {
+                else
                     token.val += l;
-                }
+            } else if (l == ':') {
+                if (token.type == TYPE_PATH)
+                    start_new_tok(TYPE_CALL);
+                else
+                    token.val += l;
             } else if (l == '?') {
                 if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
                     throw '? at wrong position';
@@ -77,34 +84,41 @@
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l == '[') {
-                if (filter_depth == 0 && token.type == TYPE_PATH) {
+                if (filter_depth == 0 && token.type == TYPE_PATH)
                     start_new_tok(TYPE_FILTER);
-                } else {
+                else
                     token.val += l;
-                }
                 filter_depth++;
             } else if (l == ']') {
-                if (token.type == TYPE_FILTER && --filter_depth == 0) {
+                if (token.type == TYPE_FILTER && --filter_depth == 0)
                     start_new_tok(TYPE_PATH);
-                } else {
+                else
                     token.val += l;
-                }
             } else if (l == '{') {
-                if (map_depth == 0 && token.type == TYPE_PATH) {
+                if (map_depth == 0 && token.type == TYPE_PATH)
                     start_new_tok(TYPE_MAP);
-                } else {
+                else
                     token.val += l;
-                }
                 map_depth++;
             } else if (l == '}') {
-                if (token.type == TYPE_MAP && --map_depth == 0) {
+                if (token.type == TYPE_MAP && --map_depth == 0)
                     start_new_tok(TYPE_PATH);
-                } else {
+                else
                     token.val += l;
-                }
-            } else {
+            } else if (l == '(') {
+                if (call_depth == 0 && token.type == TYPE_CALL) { // TODO handle illegal types
+                    token.call = token.val;
+                    token.val = '';
+                } else
+                    token.val += l;
+                call_depth++;
+            } else if (l == ')') {
+                if (token.type == TYPE_CALL && --call_depth == 0)
+                    start_new_tok(TYPE_PATH);
+                else
+                    token.val += l;
+            } else
                 token.val += l;
-            }
         }
 
         start_new_tok(null);//close
@@ -171,6 +185,20 @@
         return res;
     }
 
+    function sortFn(a,b) { return a[1] > b[1] ? 1 : a[1] == b[1] ? 0 : -1 }
+    var fn = {
+        s: function (pairs) {
+            pairs.sort(sortFn);
+            var res = [];
+            for (var i = 0; i < pairs.length; i++) {
+                res.push(pairs[i][0]);
+            }
+            return res;
+        },
+        u: function (pairs) {
+
+        }
+    };
     function exec(data, token, args) {
         // console.log('Exec', data, token);
         var res = [];
@@ -199,9 +227,18 @@
             }
         } else if (token.type == TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
-                v = data[i];
-                res.push(token.func(v, i, args));
+                res.push(token.func(data[i], i, args));
             }
+        } else if (token.type == TYPE_CALL) {
+            var f = fn[token.call];
+            if (!f)
+                throw 'not valid call: ' + token.call;
+            var pairs = [];
+            for (i = 0; i < data.length; i++) {
+                v = data[i];
+                pairs.push([v, token.func(v, i, args)]);
+            }
+            res = f(pairs);
         }
 
         return res;

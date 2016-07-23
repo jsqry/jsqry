@@ -113,4 +113,11 @@ describe('Jsqry tests', function () {
         expect(query([0, 0, 0, 0, 0], '{i}')).toEqual([0, 1, 2, 3, 4]);
         expect(query(['a', 'b', 'c', 'd', 'e'], '[i%2==0]')).toEqual(['a', 'c', 'e']);
     });
+
+    it('Should support sorting', function () {
+        expect(query([2, 4, 1, 5, 3], ':s(_)')).toEqual([1, 2, 3, 4, 5]);
+        expect(query([2, 4, 1, 5, 3], ':s(-_)')).toEqual([5, 4, 3, 2, 1]);
+        expect(query([{id:2,val:22}, {id:4,val:44}, {id:1,val:11}, {id:5,val:55}, {id:3,val:33}],
+            ':s(-_.id).val')).toEqual([55, 44, 33, 22, 11]);
+    });
 });
