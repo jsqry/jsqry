@@ -56,7 +56,7 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (token.type == TYPE_MAP || token.type == TYPE_CALL) {
+                } else if (token.type == TYPE_MAP || token.type == TYPE_CALL && token.call) {
                     func_token(token);
                 }
             }
@@ -239,13 +239,13 @@
                 res.push(token.func(data[i], i, args));
             }
         } else if (token.type == TYPE_CALL) {
-            var f = fn[token.call];
+            var f = fn[token.call || token.val];
             if (!f)
                 throw 'not valid call: ' + token.call;
             var pairs = [];
             for (i = 0; i < data.length; i++) {
                 v = data[i];
-                pairs.push([v, token.func(v, i, args)]);
+                pairs.push([v, token.func ? token.func(v, i, args) : v]);
             }
             res = f(pairs);
         }
