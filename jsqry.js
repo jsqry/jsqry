@@ -1,5 +1,5 @@
 (function (jsqry, undefined) {
-    // Usage: https://github.com/xonixx/jsqry/blob/master/spec/spec.js
+    // Usage: https://github.com/xonixx/jsqry/blob/master/spec.js
     jsqry.first = first;
     jsqry.query = query;
     jsqry.cache = true;
