@@ -133,7 +133,13 @@ describe('Jsqry tests', function () {
     it('Should fail on incorrect input', function () {
         expect(function () {query(1, 'a[id==1')}).toThrow('Not closed [');
         expect(function () {query(1, ':a(id==1')}).toThrow('Not closed (');
-        expect(function () {query(1, 'a(_)')}).toThrow('Invalid call - missing ":"');
         expect(function () {query(1, 'a{id==1')}).toThrow('Not closed {');
+
+        expect(function () {query(1, 'a(_)')}).toThrow('Invalid call - missing ":"');
+
+        expect(function () {query(1, 'a)')}).toThrow(') without (');
+        expect(function () {query(1, ':a)')}).toThrow('not valid call: a)');
+        expect(function () {query(1, ']')}).toThrow('] without [');
+        expect(function () {query(1, 'b{_+1}}')}).toThrow('} without {');
     })
 });

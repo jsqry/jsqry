@@ -94,6 +94,8 @@
                     token.val += l;
                 filter_depth++;
             } else if (l == ']') {
+                if (token.type == TYPE_PATH)
+                    throw '] without [';
                 if (token.type == TYPE_FILTER && --filter_depth == 0)
                     start_new_tok(TYPE_PATH);
                 else
@@ -105,6 +107,8 @@
                     token.val += l;
                 map_depth++;
             } else if (l == '}') {
+                if (token.type == TYPE_PATH)
+                    throw '} without {';
                 if (token.type == TYPE_MAP && --map_depth == 0)
                     start_new_tok(TYPE_PATH);
                 else
@@ -120,6 +124,8 @@
                     token.val += l;
                 call_depth++;
             } else if (l == ')') {
+                if (token.type == TYPE_PATH)
+                    throw ') without (';
                 if (token.type == TYPE_CALL && --call_depth == 0)
                     start_new_tok(TYPE_PATH);
                 else
@@ -246,9 +252,10 @@
                 res.push(token.func(data[i], i, args));
             }
         } else if (token.type == TYPE_CALL || token.type == TYPE_CALL_PRE) {
-            var f = fn[token.type == TYPE_CALL ? token.call : token.val];
+            var fname = token.type == TYPE_CALL ? token.call : token.val;
+            var f = fn[fname];
             if (!f)
-                throw 'not valid call: ' + token.call;
+                throw 'not valid call: ' + fname;
             var pairs = [];
             for (i = 0; i < data.length; i++) {
                 v = data[i];
