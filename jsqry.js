@@ -110,7 +110,9 @@
                 else
                     token.val += l;
             } else if (l == '(') {
-                if (call_depth == 0 && token.type == TYPE_CALL_PRE) { // TODO handle illegal types
+                if (token.type == TYPE_PATH)
+                    throw 'Invalid call - missing ":"';
+                if (call_depth == 0 && token.type == TYPE_CALL_PRE) {
                     token.call = token.val;
                     token.val = '';
                     token.type = TYPE_CALL
