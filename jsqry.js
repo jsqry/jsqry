@@ -7,6 +7,7 @@
     jsqry.fn = fn;
 
     var TYPE_PATH = 'p';
+    var TYPE_CALL_PRE = '_c';
     var TYPE_CALL = 'c';
     var TYPE_FILTER = 'f';
     var TYPE_MAP = 'm';
@@ -43,9 +44,10 @@
 
         function start_new_tok(tok_type) {
             var val = token.val;
+            var type = token.type;
             if (val) { // handle prev token
                 ast.push(token);
-                if (token.type == TYPE_FILTER) {
+                if (type == TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
                         func_token(token)
                     } else { // index/slice
@@ -56,10 +58,12 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (token.type == TYPE_MAP || token.type == TYPE_CALL && token.call) {
+                } else if (type == TYPE_MAP || type == TYPE_CALL && token.call) {
                     func_token(token);
                 }
             }
+            if (tok_type == null && (type == TYPE_FILTER || type == TYPE_MAP || type == TYPE_CALL))
+                throw 'Not closed ' + (type == TYPE_FILTER ? '[' : type == TYPE_MAP ? '{' : type == TYPE_CALL ? '(' : 'wtf');
             token = {type: tok_type, val: ''};
         }
 
@@ -72,7 +76,7 @@
                     token.val += l;
             } else if (l == ':') {
                 if (token.type == TYPE_PATH)
-                    start_new_tok(TYPE_CALL);
+                    start_new_tok(TYPE_CALL_PRE);
                 else
                     token.val += l;
             } else if (l == '?') {
@@ -106,9 +110,10 @@
                 else
                     token.val += l;
             } else if (l == '(') {
-                if (call_depth == 0 && token.type == TYPE_CALL) { // TODO handle illegal types
+                if (call_depth == 0 && token.type == TYPE_CALL_PRE) { // TODO handle illegal types
                     token.call = token.val;
                     token.val = '';
+                    token.type = TYPE_CALL
                 } else
                     token.val += l;
                 call_depth++;
@@ -238,8 +243,8 @@
             for (i = 0; i < data.length; i++) {
                 res.push(token.func(data[i], i, args));
             }
-        } else if (token.type == TYPE_CALL) {
-            var f = fn[token.call || token.val];
+        } else if (token.type == TYPE_CALL || token.type == TYPE_CALL_PRE) {
+            var f = fn[token.type == TYPE_CALL ? token.call : token.val];
             if (!f)
                 throw 'not valid call: ' + token.call;
             var pairs = [];

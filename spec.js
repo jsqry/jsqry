@@ -130,4 +130,9 @@ describe('Jsqry tests', function () {
         expect(query(data, ':u(_.id):u(_.val):s(_.val).val')).toEqual(['A','B']);
         expect(query(data, '{ {a:_} }.a:u(_.id):u(_.val):s(_.val).val')).toEqual(['A','B']);
     });
+    it('Should fail on incorrect input', function () {
+        expect(function () {query(100, 'a[id==1')}).toThrow('Not closed [');
+        expect(function () {query(100, ':a(id==1')}).toThrow('Not closed (');
+        expect(function () {query(100, 'a{id==1')}).toThrow('Not closed {');
+    })
 });
