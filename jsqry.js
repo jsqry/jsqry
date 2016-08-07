@@ -8,7 +8,6 @@
     jsqry.parse = parse;
 
     var TYPE_PATH = 'p';
-    var TYPE_CALL_PRE = '_c';
     var TYPE_CALL = 'c';
     var TYPE_FILTER = 'f';
     var TYPE_MAP = 'm';
@@ -46,6 +45,8 @@
         function start_new_tok(tok_type) {
             var val = token.val;
             var type = token.type;
+            if (!val && type == TYPE_CALL)
+                val = token.val = '_';
             if (val) { // handle prev token
                 ast.push(token);
                 if (type == TYPE_FILTER) {
@@ -73,11 +74,6 @@
             if (l == '.') {
                 if (token.type == TYPE_PATH)
                     start_new_tok(TYPE_PATH);
-                else
-                    token.val += l;
-            } else if (l == ':') {
-                if (token.type == TYPE_PATH)
-                    start_new_tok(TYPE_CALL_PRE);
                 else
                     token.val += l;
             } else if (l == '?') {
@@ -115,9 +111,7 @@
                 else
                     token.val += l;
             } else if (l == '(') {
-                if (token.type == TYPE_PATH)
-                    throw 'Invalid call - missing ":"';
-                if (call_depth == 0 && token.type == TYPE_CALL_PRE) {
+                if (call_depth == 0 && token.type == TYPE_PATH) {
                     token.call = token.val;
                     token.val = '';
                     token.type = TYPE_CALL
@@ -252,8 +246,8 @@
             for (i = 0; i < data.length; i++) {
                 res.push(token.func(data[i], i, args));
             }
-        } else if (token.type == TYPE_CALL || token.type == TYPE_CALL_PRE) {
-            var fname = token.type == TYPE_CALL ? token.call : token.val;
+        } else if (token.type == TYPE_CALL) {
+            var fname = token.call;
             var f = fn[fname];
             if (!f)
                 throw 'not valid call: ' + fname;
