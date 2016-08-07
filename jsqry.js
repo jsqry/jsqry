@@ -45,7 +45,7 @@
         function start_new_tok(tok_type) {
             var val = token.val;
             var type = token.type;
-            if (!val && type == TYPE_CALL)
+            if (!val && type == TYPE_CALL) // handle 's()'
                 val = token.val = '_';
             if (val) { // handle prev token
                 ast.push(token);
@@ -72,9 +72,11 @@
         for (var i = 0; i < expr.length; i++) {
             var l = expr[i];
             if (l == '.') {
-                if (token.type == TYPE_PATH)
+                if (token.type == TYPE_PATH) {
+                    if (expr[i+1] == '.')
+                        throw '.. encountered';
                     start_new_tok(TYPE_PATH);
-                else
+                } else
                     token.val += l;
             } else if (l == '?') {
                 if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
