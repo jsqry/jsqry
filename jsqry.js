@@ -5,6 +5,7 @@
     jsqry.cache = true;
     jsqry.ast_cache = {};
     jsqry.fn = fn;
+    jsqry.parse = parse;
 
     var TYPE_PATH = 'p';
     var TYPE_CALL_PRE = '_c';
