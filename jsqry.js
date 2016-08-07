@@ -70,18 +70,18 @@
         }
 
         for (var i = 0; i < expr.length; i++) {
-            var l = expr[i];
+            var l = expr[i], next = expr[i+1];
             if (l == '.') {
                 if (token.type == TYPE_PATH) {
-                    if (expr[i+1] == '.')
-                        throw '.. encountered';
+                    if (next == '.' || !defined(next))
+                        throw '. at wrong position';
                     start_new_tok(TYPE_PATH);
                 } else
                     token.val += l;
             } else if (l == '?') {
                 if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
                     throw '? at wrong position';
-                if (expr[i+1] == '?') {
+                if (next == '?') {
                     token.val += l;
                     i++;
                 } else

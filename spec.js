@@ -142,6 +142,7 @@ describe('Jsqry tests', function () {
         expect(function () {query(1, ']')}).toThrow('] without [');
         expect(function () {query(1, 'b{_+1}}')}).toThrow('} without {');
 
-        expect(function () {query(1, '.............')}).toThrow('.. encountered');
+        expect(function () {query(1, '.............')}).toThrow('. at wrong position');
+        expect(function () {query(1, 'a.')}).toThrow('. at wrong position');
     })
 });
