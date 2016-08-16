@@ -9,9 +9,9 @@
         module.exports = factory();
     } else {
         // Browser globals (root is window)
-        root.returnExports = factory();
+        root.jsqry = factory();
   }
-}(this, function () {
+}(this, function (undefined) {
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec.js
     var jsqry = {};
     jsqry.first = first;
