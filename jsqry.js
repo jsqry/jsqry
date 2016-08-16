@@ -1,5 +1,19 @@
-(function (jsqry, undefined) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.jsqry = factory();
+  }
+}(this, function (undefined) {
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec.js
+    var jsqry = {};
     jsqry.first = first;
     jsqry.query = query;
     jsqry.cache = true;
@@ -263,4 +277,6 @@
 
         return res;
     }
-})(typeof exports != 'undefined' ? exports : jsqry = {});
+    
+    return jsqry;
+}));
