@@ -130,6 +130,18 @@ describe('Jsqry tests', function () {
         expect(query(data, '.u(_.id).u(_.val).s(_.val).val')).toEqual(['A','B']);
         expect(query(data, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
     });
+    it('Should support grouping', function () {
+        expect(query([1.3, 2.1, 2.4], 'g(Math.floor(_))'))
+            .toEqual([[1, [1.3]], [2, [2.1, 2.4]]]);
+        expect(query(['one', 'two', 'three'], 'g(_.length){_[1]}'))
+            .toEqual([['one', 'two'], ['three']]);
+        expect(query(['one', 'two', 'three'], 'g(_.length){_[1]}.length'))
+            .toEqual([2, 1]);
+        expect(query([[1, 1], [2, 2], [1, 3], [3, 4], [1, 5], [2, 6]], 'g(_[0])'))
+            .toEqual([[1, [[1, 1], [1, 3], [1, 5]]], [2, [[2, 2], [2, 6]]], [3, [[3, 4]]]]);
+        expect(query([{id:1, val:1}, {id:2, val:2}, {id:1, val:3}, {id:3, val:4}, {id:1, val:5}, {id:2, val:6}], 'g(_.id)'))
+            .toEqual([[1, [{id:1, val:1}, {id:1, val:3},  {id:1, val:5}]], [2, [{id:2, val:2}, {id:2, val:6}]], [3, [{id:3, val:4}]]]);
+    });
     it('Should fail on incorrect input', function () {
         expect(function () {query(1, 'a[id==1')}).toThrow('Not closed [');
         expect(function () {query(1, '.a(id==1')}).toThrow('Not closed (');

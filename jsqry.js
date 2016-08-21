@@ -231,6 +231,22 @@
                 }
             }
             return res;
+        },
+        g: function (pairs) {
+            var groups = {};
+            for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i];
+                var group = groups[p[1]];
+                if (!group)
+                    group = groups[p[1]] = [p[1],[]];
+                group[1].push(p[0])
+            }
+            var res = [];
+            for (var k in groups) {
+                var g = groups[k];
+                res.push([g[0], g[1]]);
+            }
+            return res;
         }
     };
     function exec(data, token, args) {
