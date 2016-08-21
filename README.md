@@ -26,3 +26,9 @@ Features include:
 1. Python-style array indexing & slicing
 
 More examples of usage: [spec.js](/spec.js)
+
+## Install
+
+```
+npm install jsqry
+```

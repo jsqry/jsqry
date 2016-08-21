@@ -1,0 +1,21 @@
+{
+  "name": "jsqry",
+  "version": "1.1.0",
+  "description": "Simple lib to query js objects/arrays",
+  "keywords": [
+    "json",
+    "query",
+    "filter"
+  ],
+  "homepage": "https://github.com/xonixx/jsqry",
+  "license": "MIT",
+  "author": {
+    "name": "Volodymyr Gubarkov",
+    "email": "xonixx@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xonixx/jsqry.git"
+  },
+  "dependencies": {}
+}
