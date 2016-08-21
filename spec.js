@@ -131,6 +131,12 @@ describe('Jsqry tests', function () {
         expect(query(data, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
     });
     it('Should support grouping', function () {
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()'))
+            .toEqual([[1, [1]], [2, [2, 2, 2, 2]], [3, [3, 3]], [4, [4, 4, 4]], [5, [5, 5]]]);
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g(){ [_[0], _[1].length] }'))
+            .toEqual([[1, 1], [2, 4], [3, 2], [4, 3], [5, 2]]);
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g(){ [_[0], _[1].length] }s(-_[1]){_[0]}'))
+            .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
         expect(query([1.3, 2.1, 2.4], 'g(Math.floor(_))'))
             .toEqual([[1, [1.3]], [2, [2.1, 2.4]]]);
         expect(query(['one', 'two', 'three'], 'g(_.length){_[1]}'))
