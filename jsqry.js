@@ -212,17 +212,14 @@
 
     function sortFn(a,b) { return a[1] > b[1] ? 1 : a[1] == b[1] ? 0 : -1 }
     var fn = {
-        s: function (pairs) {
+        s: function (pairs, res) {
             pairs.sort(sortFn);
-            var res = [];
             for (var i = 0; i < pairs.length; i++) {
                 res.push(pairs[i][0]);
             }
-            return res;
         },
-        u: function (pairs) {
+        u: function (pairs, res) {
             var exists = {};
-            var res = [];
             for (var i = 0; i < pairs.length; i++) {
                 var p = pairs[i];
                 if (!exists[p[1]]){
@@ -230,9 +227,8 @@
                     res.push(p[0]);
                 }
             }
-            return res;
         },
-        g: function (pairs) {
+        g: function (pairs, res) {
             var groups = {};
             for (var i = 0; i < pairs.length; i++) {
                 var p = pairs[i];
@@ -241,12 +237,10 @@
                     group = groups[p[1]] = [p[1],[]];
                 group[1].push(p[0])
             }
-            var res = [];
             for (var k in groups) {
                 var g = groups[k];
                 res.push([g[0], g[1]]);
             }
-            return res;
         }
     };
     function exec(data, token, args) {
@@ -289,7 +283,7 @@
                 v = data[i];
                 pairs.push([v, token.func ? token.func(v, i, args) : v]);
             }
-            res = f(pairs);
+            f(pairs, res);
         }
 
         return res;
