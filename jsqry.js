@@ -13,13 +13,14 @@
   }
 }(this, function (undefined) {
     // Usage: https://github.com/xonixx/jsqry/blob/master/spec.js
-    var jsqry = {};
-    jsqry.first = first;
-    jsqry.query = query;
-    jsqry.cache = true;
-    jsqry.ast_cache = {};
-    jsqry.fn = fn;
-    jsqry.parse = parse;
+    var jsqry = {
+        first: first,
+        query: query,
+        cache: true,
+        ast_cache: {},
+        fn: fn,
+        parse: parse
+    };
 
     var TYPE_PATH = 'p';
     var TYPE_CALL = 'c';
@@ -35,7 +36,7 @@
 
     function is_arr(obj) {
         if (obj == null) return false;
-        return defined(obj.length) && typeof obj != 'string';
+        return defined(obj.length) && typeof obj !== 'string';
     }
 
     function func_token(token) {
@@ -59,11 +60,11 @@
         function start_new_tok(tok_type) {
             var val = token.val;
             var type = token.type;
-            if (!val && type == TYPE_CALL) // handle 's()'
+            if (!val && type === TYPE_CALL) // handle 's()'
                 val = token.val = '_';
             if (val) { // handle prev token
                 ast.push(token);
-                if (type == TYPE_FILTER) {
+                if (type === TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
                         func_token(token)
                     } else { // index/slice
@@ -74,70 +75,70 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (type == TYPE_MAP || type == TYPE_CALL && token.call) {
+                } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
                     func_token(token);
                 }
             }
-            if (tok_type == null && (type == TYPE_FILTER || type == TYPE_MAP || type == TYPE_CALL))
-                throw 'Not closed ' + (type == TYPE_FILTER ? '[' : type == TYPE_MAP ? '{' : type == TYPE_CALL ? '(' : 'wtf');
+            if (tok_type == null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
+                throw 'Not closed ' + (type === TYPE_FILTER ? '[' : type === TYPE_MAP ? '{' : type === TYPE_CALL ? '(' : 'wtf');
             token = {type: tok_type, val: ''};
         }
 
         for (var i = 0; i < expr.length; i++) {
             var l = expr[i], next = expr[i+1];
-            if (l == '.') {
-                if (token.type == TYPE_PATH) {
-                    if (next == '.' || !defined(next))
+            if (l === '.') {
+                if (token.type === TYPE_PATH) {
+                    if (next === '.' || !defined(next))
                         throw '. at wrong position';
                     start_new_tok(TYPE_PATH);
                 } else
                     token.val += l;
-            } else if (l == '?') {
+            } else if (l === '?') {
                 if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
                     throw '? at wrong position';
-                if (next == '?') {
+                if (next === '?') {
                     token.val += l;
                     i++;
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
-            } else if (l == '[') {
-                if (filter_depth == 0 && token.type == TYPE_PATH)
+            } else if (l === '[') {
+                if (filter_depth === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_FILTER);
                 else
                     token.val += l;
                 filter_depth++;
-            } else if (l == ']') {
-                if (token.type == TYPE_PATH)
+            } else if (l === ']') {
+                if (token.type === TYPE_PATH)
                     throw '] without [';
-                if (token.type == TYPE_FILTER && --filter_depth == 0)
+                if (token.type === TYPE_FILTER && --filter_depth === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
-            } else if (l == '{') {
-                if (map_depth == 0 && token.type == TYPE_PATH)
+            } else if (l === '{') {
+                if (map_depth === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_MAP);
                 else
                     token.val += l;
                 map_depth++;
-            } else if (l == '}') {
-                if (token.type == TYPE_PATH)
+            } else if (l === '}') {
+                if (token.type === TYPE_PATH)
                     throw '} without {';
-                if (token.type == TYPE_MAP && --map_depth == 0)
+                if (token.type === TYPE_MAP && --map_depth === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
-            } else if (l == '(') {
-                if (call_depth == 0 && token.type == TYPE_PATH) {
+            } else if (l === '(') {
+                if (call_depth === 0 && token.type === TYPE_PATH) {
                     token.call = token.val;
                     token.val = '';
                     token.type = TYPE_CALL
                 } else
                     token.val += l;
                 call_depth++;
-            } else if (l == ')') {
-                if (token.type == TYPE_PATH)
+            } else if (l === ')') {
+                if (token.type === TYPE_PATH)
                     throw ') without (';
-                if (token.type == TYPE_CALL && --call_depth == 0)
+                if (token.type === TYPE_CALL && --call_depth === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
@@ -235,10 +236,10 @@
     function exec(data, token, args) {
         // console.log('Exec', data, token);
         var res = [];
-        if (token.type == TYPE_PATH) {
+        if (token.type === TYPE_PATH) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
-                if (!defined(v) && 'it' == token.val)
+                if (!defined(v) && 'it' === token.val)
                     v = data[i];
                 if (is_arr(v)) {
                     for (var j = 0; j < v.length; j++) {
@@ -247,22 +248,22 @@
                 } else if (defined(v) && v !== null)
                     res.push(v);
             }
-        } else if (token.type == TYPE_FILTER) {
-            if (token.sub_type == SUB_TYPE_FUNC) {
+        } else if (token.type === TYPE_FILTER) {
+            if (token.sub_type === SUB_TYPE_FUNC) {
                 for (i = 0; i < data.length; i++) {
                     v = data[i];
                     if (token.func(v, i, args)) {
                         res.push(v);
                     }
                 }
-            } else if (token.sub_type == SUB_TYPE_INDEX) {
+            } else if (token.sub_type === SUB_TYPE_INDEX) {
                 res = calc_index(data, token.index);
             }
-        } else if (token.type == TYPE_MAP) {
+        } else if (token.type === TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
                 res.push(token.func(data[i], i, args));
             }
-        } else if (token.type == TYPE_CALL) {
+        } else if (token.type === TYPE_CALL) {
             var fname = token.call;
             var f = fn[fname];
             if (!f)
