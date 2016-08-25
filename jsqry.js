@@ -58,7 +58,9 @@
         var call_depth = 0; // nesting of ()
 
         function start_new_tok(tok_type) {
-            var val = token.val;
+            var val = token.val.trim();
+            if (token.call)
+                token.call = token.call.trim();
             var type = token.type;
             if (!val && type === TYPE_CALL) // handle 's()'
                 val = token.val = '_';
@@ -277,7 +279,7 @@
             var fname = token.call;
             var f = fn[fname];
             if (!f)
-                throw 'not valid call: ' + fname;
+                throw 'not valid call: "' + fname + '"';
             var pairs = [];
             for (i = 0; i < data.length; i++) {
                 v = data[i];

@@ -28,6 +28,7 @@ describe('Jsqry tests', function () {
             {name:'Fac 4'}
         ]
     };
+    var data = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
 
     it('Should handle placeholders', function () {
         expect(first(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
@@ -126,7 +127,6 @@ describe('Jsqry tests', function () {
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()')).toEqual([2, 4, 1, 5, 3]);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()s()')).toEqual([1, 2, 3, 4, 5]);
         expect(query([[2], [4], [1], [4], [5], [3], [3], [1], [4], [2], [5]], 'it.u(_)')).toEqual([2, 4, 1, 5, 3]);
-        var data = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
         expect(query(data, 'u(_.id)s(_.val)u(_.val).val')).toEqual(['A','B']);
         expect(query(data, '.u(_.id).u(_.val).s(_.val).val')).toEqual(['A','B']);
         expect(query(data, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
@@ -154,7 +154,7 @@ describe('Jsqry tests', function () {
         expect(function () {query(1, '.a(id==1')}).toThrow('Not closed (');
         expect(function () {query(1, 'a{id==1')}).toThrow('Not closed {');
 
-        expect(function () {query(1, 'a(_)')}).toThrow('not valid call: a');
+        expect(function () {query(1, 'a(_)')}).toThrow('not valid call: "a"');
 
         expect(function () {query(1, 'a)')}).toThrow(') without (');
         expect(function () {query(1, '.a)')}).toThrow(') without (');
@@ -163,5 +163,11 @@ describe('Jsqry tests', function () {
 
         expect(function () {query(1, '.............')}).toThrow('. at wrong position');
         expect(function () {query(1, 'a.')}).toThrow('. at wrong position');
+    });
+    it('Should tolerate spaces', function () {
+        expect(query(data, 'u(_.id) s(_.val) u( _.val ) .val')).toEqual(['A','B']);
+        expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')).toEqual([2, 4, 1, 5, 3]);
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}'))
+            .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
     })
 });
