@@ -58,7 +58,7 @@
         var call_depth = 0; // nesting of ()
 
         function start_new_tok(tok_type) {
-            var val = token.val.trim();
+            var val = token.val = token.val.trim();
             if (token.call)
                 token.call = token.call.trim();
             var type = token.type;
