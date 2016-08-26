@@ -107,7 +107,7 @@ describe('Jsqry tests', function () {
     it('Should support flatting', function () {
         expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);
         expect(query([[{a: 1}, {a: 2}], [{a: 3}]], 'it.a')).toEqual([1, 2, 3]);
-        expect(query([[1, 2, 3], [4, 5], [6]], 'it.it')).toEqual([1, 2, 3, 4, 5, 6]);
+        expect(query([[1, 2, 3], [4, 5], [6]], 'it')).toEqual([1, 2, 3, 4, 5, 6]);
     });
 
     it('Should support index parameter', function () {
@@ -178,6 +178,10 @@ describe('Jsqry tests', function () {
             .toEqual([['a','A', 'AA'],['b', 'B', 'BB'],['c', 'C', 'CC'],['d', 'D', 'DD']]);
         // enumerate
         expect(query(['a', 'b', 'c', 'd'], '{[i,_]}')).toEqual([[0, 'a'], [1, 'b'], [2, 'c'], [3, 'd']]);
-        expect(query(Array(26), '{String.fromCharCode(i+97)}').join('')).toEqual('abcdefghijklmnopqrstuvwxyz')
+        expect(query(Array(26), '{String.fromCharCode(i+97)}').join('')).toEqual('abcdefghijklmnopqrstuvwxyz');
+        // difference
+        expect(query([1, 2, 1, 0, 3, 1, 4], '[?.indexOf(_)<0]', [0, 1])).toEqual([2, 3, 4]);
+        // union
+        expect(query([[1, 2, 3], [101, 2, 1, 10], [2, 1]], 'it.u()')).toEqual([1, 2, 3, 101, 10]);
     })
 });
