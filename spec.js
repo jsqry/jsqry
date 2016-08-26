@@ -170,5 +170,14 @@ describe('Jsqry tests', function () {
         expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}'))
             .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
         expect(first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')).toEqual(123)
+    });
+    it('Should support tricks', function () {
+        // zip
+        expect(query(['a', 'b', 'c', 'd'], '{[_,?[i]]}', ['A', 'B', 'C', 'D'])).toEqual([['a','A'],['b', 'B'],['c', 'C'],['d', 'D']]);
+        expect(query(['a', 'b', 'c', 'd'], '{ [_, ?[i], ?[i]] }', ['A', 'B', 'C', 'D'],['AA', 'BB', 'CC', 'DD']))
+            .toEqual([['a','A', 'AA'],['b', 'B', 'BB'],['c', 'C', 'CC'],['d', 'D', 'DD']]);
+        // enumerate
+        expect(query(['a', 'b', 'c', 'd'], '{[i,_]}')).toEqual([[0, 'a'], [1, 'b'], [2, 'c'], [3, 'd']]);
+        expect(query(Array(26), '{String.fromCharCode(i+97)}').join('')).toEqual('abcdefghijklmnopqrstuvwxyz')
     })
 });
