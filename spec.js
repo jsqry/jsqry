@@ -2,15 +2,15 @@ describe('Jsqry tests', function () {
     var query = jsqry.query;
     var first = jsqry.first;
 
-    var people = [
+    var PEOPLE = [
         {id: 1, name: 'Alex'},
-        {id: 2, name: 'Serg'},
+        {id: 2, name: 'Serge'},
         {id: 3, name: 'Vlad'},
         {id: 4, name: 'Zachary'},
         {id: 5, name: 'Michael'}
     ];
 
-    var hotel = {
+    var HOTEL = {
         name: 'Name',
         facilities: [
             {name:'Fac 1',
@@ -28,14 +28,14 @@ describe('Jsqry tests', function () {
             {name:'Fac 4'}
         ]
     };
-    var data = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
+    var DATA = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
 
     it('Should handle placeholders', function () {
-        expect(first(people, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
-        expect(first(people, '{?}', 1)).toEqual(1);
-        expect(first(people, '{?+?+?}', 1, 2, 4)).toEqual(7);
-        expect(first(people, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
-        expect(query(people, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(first(PEOPLE, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
+        expect(first(PEOPLE, '{?}', 1)).toEqual(1);
+        expect(first(PEOPLE, '{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(first(PEOPLE, '[0]{?+?+?}', 1, 2, 4)).toEqual(7);
+        expect(query(PEOPLE, '{[?,?,?,?,?][i]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
 
         expect(query(100, '{?+?+?+?}', 1, 2, 3, 4)).toEqual([10]);
         expect(function () {query(100, '{?+?+?+?}', 1, 2)}).toThrow('Wrong args count');
@@ -61,18 +61,18 @@ describe('Jsqry tests', function () {
     });
 
     function basicTests () {
-        expect(query({ll: people}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
-        expect(first(people, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serg');
-        expect(query(people, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serg','Zachary']);
-        expect(first(people, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(4);
+        expect(query({ll: PEOPLE}, 'll.name{_.toUpperCase()}{_.length}[_>=5][1]')).toEqual([7]);
+        expect(first(PEOPLE, '[_.id>=2].name[_.toLowerCase()[0]==?]', 's')).toEqual('Serge');
+        expect(query(PEOPLE, 'name[_[0]==? || _[0]==?]', 'S', 'Z')).toEqual(['Serge','Zachary']);
+        expect(first(PEOPLE, '[_.id>=2].name[_.toLowerCase()[0]==?].length', 's')).toEqual(5);
 
         expect(query([{a: 1}, {a: 2}, {a: 3}], 'a[_>=2]{_+100}')).toEqual([102, 103]);
 
-        expect(query(hotel, 'facilities[_.services]').length).toEqual(2);
-        expect(query(hotel, 'facilities[_.services].name')).toEqual(['Fac 1', 'Fac 2']);
-        expect(query(hotel, 'facilities.services').length).toEqual(5);
-        expect(query(hotel, 'facilities.services.name')).toEqual(['Service 1', 'Service 2', 'Service 3', 'Service 4', 'Service 5']);
-        expect(query(hotel, 'facilities.services[_.visible!==false].name')).toEqual(['Service 2', 'Service 3', 'Service 5']);
+        expect(query(HOTEL, 'facilities[_.services]').length).toEqual(2);
+        expect(query(HOTEL, 'facilities[_.services].name')).toEqual(['Fac 1', 'Fac 2']);
+        expect(query(HOTEL, 'facilities.services').length).toEqual(5);
+        expect(query(HOTEL, 'facilities.services.name')).toEqual(['Service 1', 'Service 2', 'Service 3', 'Service 4', 'Service 5']);
+        expect(query(HOTEL, 'facilities.services[_.visible!==false].name')).toEqual(['Service 2', 'Service 3', 'Service 5']);
     }
     it('Should pass basic tests (1st pass)', basicTests);
     it('Should pass basic tests (test caching)', basicTests);
@@ -127,9 +127,9 @@ describe('Jsqry tests', function () {
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()')).toEqual([2, 4, 1, 5, 3]);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()s()')).toEqual([1, 2, 3, 4, 5]);
         expect(query([[2], [4], [1], [4], [5], [3], [3], [1], [4], [2], [5]], 'it.u(_)')).toEqual([2, 4, 1, 5, 3]);
-        expect(query(data, 'u(_.id)s(_.val)u(_.val).val')).toEqual(['A','B']);
-        expect(query(data, '.u(_.id).u(_.val).s(_.val).val')).toEqual(['A','B']);
-        expect(query(data, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
+        expect(query(DATA, 'u(_.id)s(_.val)u(_.val).val')).toEqual(['A','B']);
+        expect(query(DATA, '.u(_.id).u(_.val).s(_.val).val')).toEqual(['A','B']);
+        expect(query(DATA, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
     });
     it('Should support grouping', function () {
         expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()'))
@@ -165,7 +165,7 @@ describe('Jsqry tests', function () {
         expect(function () {query(1, 'a.')}).toThrow('. at wrong position');
     });
     it('Should tolerate spaces', function () {
-        expect(query(data, 'u(_.id) s(_.val) u( _.val ) .val')).toEqual(['A','B']);
+        expect(query(DATA, 'u(_.id) s(_.val) u( _.val ) .val')).toEqual(['A','B']);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')).toEqual([2, 4, 1, 5, 3]);
         expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}'))
             .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
