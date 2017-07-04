@@ -96,7 +96,7 @@
                 } else
                     token.val += l;
             } else if (l === '?') {
-                if (token.type != TYPE_FILTER && token.type != TYPE_MAP)
+                if (token.type !== TYPE_FILTER && token.type !== TYPE_MAP)
                     throw '? at wrong position';
                 if (next === '?') {
                     token.val += l;
@@ -170,7 +170,7 @@
 
         var args = Array.prototype.slice.call(arguments, 2);
         var ast = parse(expr);
-        if (args.length != ast.args_count)
+        if (args.length !== ast.args_count)
             throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
@@ -194,12 +194,12 @@
         var res = [];
         var idx_cnt = index.length;
         var len = list.length;
-        if (idx_cnt == 1) {
+        if (idx_cnt === 1) {
             var val = list[norm_idx(1, index[0], len)];
             if (defined(val))
                 res.push(val);
         } else if (idx_cnt >= 2) {
-            var step = idx_cnt == 3 ? index[2] : 1;
+            var step = idx_cnt === 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
             var from = norm_idx(1, index[0], len, step);
             var to = norm_idx(0, index[1], len, step);
