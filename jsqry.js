@@ -10,9 +10,9 @@
     } else {
         // Browser globals (root is window)
         root.jsqry = factory();
-  }
+    }
 }(this, function (undefined) {
-    // Usage: https://github.com/xonixx/jsqry/blob/master/spec.js
+    var fn = {};
     var jsqry = {
         first: first,
         query: query,
@@ -87,7 +87,7 @@
         }
 
         for (var i = 0; i < expr.length; i++) {
-            var l = expr[i], next = expr[i+1];
+            var l = expr[i], next = expr[i + 1];
             if (l === '.') {
                 if (token.type === TYPE_PATH) {
                     if (next === '.' || !defined(next))
@@ -212,37 +212,38 @@
         return res;
     }
 
-    function sortFn(a,b) { return a[1] > b[1] ? 1 : a[1] == b[1] ? 0 : -1 }
-    var fn = {
-        s: function (pairs, res) {
-            pairs.sort(sortFn);
-            for (var i = 0; i < pairs.length; i++) {
-                res.push(pairs[i][0]);
+    function sortFn(a, b) {
+        return a[1] > b[1] ? 1 : a[1] == b[1] ? 0 : -1
+    }
+
+    fn.s = function (pairs, res) {
+        pairs.sort(sortFn);
+        for (var i = 0; i < pairs.length; i++) {
+            res.push(pairs[i][0]);
+        }
+    };
+    fn.u = function (pairs, res) {
+        var exists = {};
+        for (var i = 0; i < pairs.length; i++) {
+            var p = pairs[i];
+            if (!exists[p[1]]) {
+                exists[p[1]] = 1;
+                res.push(p[0]);
             }
-        },
-        u: function (pairs, res) {
-            var exists = {};
-            for (var i = 0; i < pairs.length; i++) {
-                var p = pairs[i];
-                if (!exists[p[1]]){
-                    exists[p[1]] = 1;
-                    res.push(p[0]);
-                }
-            }
-        },
-        g: function (pairs, res) {
-            var groups = {};
-            for (var i = 0; i < pairs.length; i++) {
-                var p = pairs[i];
-                var group = groups[p[1]];
-                if (!group)
-                    group = groups[p[1]] = [p[1],[]];
-                group[1].push(p[0])
-            }
-            for (var k in groups) {
-                var g = groups[k];
-                res.push([g[0], g[1]]);
-            }
+        }
+    };
+    fn.g = function (pairs, res) {
+        var groups = {};
+        for (var i = 0; i < pairs.length; i++) {
+            var p = pairs[i];
+            var group = groups[p[1]];
+            if (!group)
+                group = groups[p[1]] = [p[1], []];
+            group[1].push(p[0])
+        }
+        for (var k in groups) {
+            var g = groups[k];
+            res.push([g[0], g[1]]);
         }
     };
     function exec(data, token, args) {
@@ -290,6 +291,6 @@
 
         return res;
     }
-    
+
     return jsqry;
 }));

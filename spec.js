@@ -171,6 +171,15 @@ describe('Jsqry tests', function () {
             .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
         expect(first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')).toEqual(123)
     });
+    it('Should support custom functions', function () {
+        jsqry.fn.uc = function (pairs, res) {
+            for (var i = 0; i < pairs.length; i++) {
+                var v = pairs[i][0];
+                res.push(v ? v.toUpperCase() : null);
+            }
+        };
+        expect(query(['a', 'bB', 'cCccC'], 'uc()')).toEqual(['A', 'BB', 'CCCCC']);
+    });
     it('Should support tricks', function () {
         // zip
         expect(query(['a', 'b', 'c', 'd'], '{[_,?[i]]}', ['A', 'B', 'C', 'D'])).toEqual([['a','A'],['b', 'B'],['c', 'C'],['d', 'D']]);
