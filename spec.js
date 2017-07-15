@@ -158,6 +158,7 @@ describe('Jsqry tests', function () {
     });
     it('Should fail on incorrect input', function () {
         expect(function () {query(1, 'a[id==1')}).toThrow('Not closed [');
+        expect(function () {query(1, 'a[_.id==')}).toThrow('Not closed [');
         expect(function () {query(1, '.a(id==1')}).toThrow('Not closed (');
         expect(function () {query(1, 'a{id==1')}).toThrow('Not closed {');
 

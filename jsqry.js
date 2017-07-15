@@ -77,6 +77,8 @@
             if (token.call)
                 token.call = token.call.trim();
             var type = token.type;
+            if (tok_type === null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
+                throw 'Not closed ' + (type === TYPE_FILTER ? '[' : type === TYPE_MAP ? '{' : type === TYPE_CALL ? '(' : 'wtf');
             if (!val && type === TYPE_CALL) // handle 's()'
                 val = token.val = '_';
             if (val) { // handle prev token
@@ -96,8 +98,6 @@
                     func_token(token);
                 }
             }
-            if (tok_type === null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
-                throw 'Not closed ' + (type === TYPE_FILTER ? '[' : type === TYPE_MAP ? '{' : type === TYPE_CALL ? '(' : 'wtf');
             token = {type: tok_type, val: ''};
         }
 
