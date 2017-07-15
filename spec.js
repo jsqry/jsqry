@@ -2,6 +2,13 @@ describe('Jsqry tests', function () {
     var query = jsqry.query;
     var first = jsqry.first;
 
+    var parse = jsqry.parse;
+    jsqry.parse = function (expr) {
+        var res = parse(expr);
+        console.info("PARSE: " + expr + " --> " + jsqry.printAst(res))
+        return res;
+    };
+
     var PEOPLE = [
         {id: 1, name: 'Alex'},
         {id: 2, name: 'Serge'},

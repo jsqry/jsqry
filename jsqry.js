@@ -19,16 +19,27 @@
         cache: true,
         ast_cache: {},
         fn: fn,
-        parse: parse
+        parse: parse,
+        printAst: printAst
     };
 
-    var TYPE_PATH = 'p';
-    var TYPE_CALL = 'c';
-    var TYPE_FILTER = 'f';
-    var TYPE_MAP = 'm';
+    var TYPE_PATH = 1;
+    var TYPE_CALL = 2;
+    var TYPE_FILTER = 3;
+    var TYPE_MAP = 4;
 
-    var SUB_TYPE_FUNC = 'func';
-    var SUB_TYPE_INDEX = 'index';
+    var SUB_TYPE_FUNC = 1;
+    var SUB_TYPE_INDEX = 2;
+
+    function printAst(ast) {
+        var res = [];
+        for (var i = 0; i < ast.length; i++) {
+            var e = ast[i];
+            var t = e.type;
+            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_MAP ? 'm' : 'c') + '(' + e.val + ')')
+        }
+        return res.join(' ');
+    }
 
     function defined(v) {
         return v !== undefined;
@@ -81,7 +92,7 @@
                     func_token(token);
                 }
             }
-            if (tok_type == null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
+            if (tok_type === null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
                 throw 'Not closed ' + (type === TYPE_FILTER ? '[' : type === TYPE_MAP ? '{' : type === TYPE_CALL ? '(' : 'wtf');
             token = {type: tok_type, val: ''};
         }
@@ -169,7 +180,7 @@
             obj = [obj];
 
         var args = Array.prototype.slice.call(arguments, 2);
-        var ast = parse(expr);
+        var ast = jsqry.parse(expr);
         if (args.length !== ast.args_count)
             throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {
