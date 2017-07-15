@@ -58,6 +58,7 @@
         token.func = Function('_,i,args', 'return ' + token.val);
     }
 
+    var allowedPathLetter = /[A-Za-z0-9_]/;
     function parse(expr) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
@@ -159,8 +160,8 @@
                 else
                     token.val += l;
             } else {
-                if (token.type === TYPE_PATH && (l === ' ' || l === '\t' || l === '\n'))
-                    throw 'whitespace in path';
+                if (token.type === TYPE_PATH && !allowedPathLetter.test(l))
+                    throw 'disallowed letter in path';
                 token.val += l;
             }
         }
