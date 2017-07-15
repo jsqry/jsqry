@@ -36,7 +36,10 @@
         for (var i = 0; i < ast.length; i++) {
             var e = ast[i];
             var t = e.type;
-            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_MAP ? 'm' : 'c') + '(' + e.val + ')')
+            var v = e.val;
+            if (t === TYPE_CALL)
+                v = e.call + ',' + v;
+            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
         }
         return res.join(' ');
     }
@@ -224,7 +227,7 @@
     }
 
     function sortFn(a, b) {
-        return a[1] > b[1] ? 1 : a[1] == b[1] ? 0 : -1
+        return a[1] > b[1] ? 1 : a[1] < b[1] ? -1 : 0
     }
 
     fn.s = function (pairs, res) {
