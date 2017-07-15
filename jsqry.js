@@ -158,8 +158,11 @@
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
-            } else
+            } else {
+                if (token.type === TYPE_PATH && (l === ' ' || l === '\t' || l === '\n'))
+                    throw 'whitespace in path';
                 token.val += l;
+            }
         }
 
         start_new_tok(null);//close

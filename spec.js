@@ -171,12 +171,17 @@ describe('Jsqry tests', function () {
         expect(function () {query(1, '.............')}).toThrow('. at wrong position');
         expect(function () {query(1, 'a.')}).toThrow('. at wrong position');
     });
-    it('Should tolerate spaces', function () {
-        expect(query(DATA, 'u(_.id) s(_.val) u( _.val ) .val')).toEqual(['A','B']);
-        expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')).toEqual([2, 4, 1, 5, 3]);
-        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}'))
+    it('Should not tolerate spaces', function () {
+        expect(query(DATA, 'u(_.id)s(_.val)u( _.val ).val')).toEqual(['A','B']);
+        expect(function () {query(DATA, 'u(_.id) s(_.val) u( _.val ) .val')}).toThrow('whitespace in path');
+        expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u( )')).toEqual([2, 4, 1, 5, 3]);
+        expect(function () {query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')}).toThrow('whitespace in path');
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g(){ [_[0], _[1].length] }s(-_[1]){_[0]}'))
             .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
-        expect(first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')).toEqual(123)
+        expect(function () {query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}')})
+            .toThrow('whitespace in path');
+        expect(first({a:{b:{c:{d:{e:123}}}}}, 'a.b.c.d.e')).toEqual(123);
+        expect(function () {first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')}).toThrow('whitespace in path');
     });
     it('Should support custom functions', function () {
         jsqry.fn.uc = function (pairs, res) {
