@@ -26,7 +26,8 @@
     var TYPE_PATH = 1;
     var TYPE_CALL = 2;
     var TYPE_FILTER = 3;
-    var TYPE_MAP = 4;
+    var TYPE_SUPER_FILTER = 4;
+    var TYPE_MAP = 5;
 
     var SUB_TYPE_FUNC = 1;
     var SUB_TYPE_INDEX = 2;
@@ -39,7 +40,7 @@
             var v = e.val;
             if (t === TYPE_CALL)
                 v = e.call + ',' + v;
-            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
+            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_SUPER_FILTER ? 'F' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
         }
         return res.join(' ');
     }
@@ -68,9 +69,10 @@
         var arg_idx = 0;
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
-        var filter_depth = 0; // nesting of []
-        var map_depth = 0; // nesting of {}
-        var call_depth = 0; // nesting of ()
+        var depth_filter = 0; // nesting of []
+        var depth_super_filter = 0; // nesting of [[]]
+        var depth_map = 0; // nesting of {}
+        var depth_call = 0; // nesting of ()
 
         function start_new_tok(tok_type) {
             var val = token.val = token.val.trim();
@@ -111,7 +113,7 @@
                 } else
                     token.val += l;
             } else if (l === '?') {
-                if (token.type !== TYPE_FILTER && token.type !== TYPE_MAP)
+                if (token.type !== TYPE_FILTER && token.type !== TYPE_SUPER_FILTER && token.type !== TYPE_MAP)
                     throw '? at wrong position';
                 if (next === '?') {
                     token.val += l;
@@ -119,43 +121,56 @@
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l === '[') {
-                if (filter_depth === 0 && token.type === TYPE_PATH)
-                    start_new_tok(TYPE_FILTER);
-                else
+                if (token.type === TYPE_PATH) {
+                    var super_filter = next === '[' && depth_super_filter === 0;
+                    if (super_filter) {
+                        start_new_tok(TYPE_SUPER_FILTER);
+                        i++;
+                    } else if (depth_filter === 0)
+                        start_new_tok(TYPE_FILTER);
+                } else
                     token.val += l;
-                filter_depth++;
+                if (super_filter)
+                    depth_super_filter++;
+                else
+                    depth_filter++;
             } else if (l === ']') {
+                console.info(111,i,token.type, depth_super_filter, depth_filter)
                 if (token.type === TYPE_PATH)
                     throw '] without [';
-                if (token.type === TYPE_FILTER && --filter_depth === 0)
+                else if (next === ']' && token.type === TYPE_SUPER_FILTER && --depth_super_filter === 0) {
+                    console.info(22)
+                    start_new_tok(TYPE_PATH);
+                    i++;
+                } else if (token.type === TYPE_FILTER && --depth_filter === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '{') {
-                if (map_depth === 0 && token.type === TYPE_PATH)
+                if (depth_map === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_MAP);
                 else
                     token.val += l;
-                map_depth++;
+                depth_map++;
             } else if (l === '}') {
                 if (token.type === TYPE_PATH)
                     throw '} without {';
-                if (token.type === TYPE_MAP && --map_depth === 0)
+                if (token.type === TYPE_MAP && --depth_map === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '(') {
-                if (call_depth === 0 && token.type === TYPE_PATH) {
+                if (depth_call === 0 && token.type === TYPE_PATH) {
                     token.call = token.val;
                     token.val = '';
                     token.type = TYPE_CALL
                 } else
                     token.val += l;
-                call_depth++;
+                depth_call++;
             } else if (l === ')') {
                 if (token.type === TYPE_PATH)
                     throw ') without (';
-                if (token.type === TYPE_CALL && --call_depth === 0)
+                if (token.type === TYPE_CALL && --depth_call === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
