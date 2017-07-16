@@ -121,16 +121,20 @@
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l === '[') {
+                var is_dbl = false;
+                if (next === '[') {
+                    i++;
+                    is_dbl = true;
+                }
                 if (token.type === TYPE_PATH) {
-                    var super_filter = next === '[' && depth_super_filter === 0;
-                    if (super_filter) {
+                    if (is_dbl && depth_super_filter === 0) {
                         start_new_tok(TYPE_SUPER_FILTER);
                         i++;
                     } else if (depth_filter === 0)
                         start_new_tok(TYPE_FILTER);
                 } else
                     token.val += l;
-                if (super_filter)
+                if (is_dbl)
                     depth_super_filter++;
                 else
                     depth_filter++;
