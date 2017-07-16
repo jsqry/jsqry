@@ -110,7 +110,18 @@ describe('Jsqry tests', function () {
         expect(query(l, '[::-2]')).toEqual(['g', 'e', 'c', 'a']);
         expect(query(l, '[::2][::-1]')).toEqual(['g', 'e', 'c', 'a']);
     });
-
+    it('Should support super filtering', function () {
+        var data = [
+            {id:1, arr:[{val:2}, {val:3}]},
+            {id:2, arr:[{val:5}]},
+            {id:3, arr:[{val:7}, {val:8}, {val:9}]}
+            ];
+        expect(query(data, '<<arr[_.val>4]>>.id')).toEqual([2, 3]);
+        expect(query(data, '<<arr[_.val>?]>>.id', 4)).toEqual([2, 3]);
+        expect(query(data, '<<arr[_.val<?]>>.id', 4)).toEqual([1]);
+        expect(query(data, '<<arr[_.val<?]>>.arr.val', 6)).toEqual([2,3,5]);
+        expect(query(data, '<<arr[_.val>?]>>.arr.val', 6)).toEqual([7,8,9]);
+    });
     it('Should support flatting', function () {
         expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);
         expect(query([[{a: 1}, {a: 2}], [{a: 3}]], 'it.a')).toEqual([1, 2, 3]);

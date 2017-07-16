@@ -96,6 +96,10 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
+                } else if (type === TYPE_SUPER_FILTER) {
+                    token.func = function (e) {
+                        return first(e, val)
+                    };
                 } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
                     func_token(token);
                 }
@@ -284,6 +288,16 @@
     function exec(data, token, args) {
         // console.log('Exec', data, token);
         var res = [];
+
+        function _applyFunc() {
+            for (i = 0; i < data.length; i++) {
+                v = data[i];
+                if (token.func(v, i, args)) {
+                    res.push(v);
+                }
+            }
+        }
+
         if (token.type === TYPE_PATH) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
@@ -297,16 +311,12 @@
                     res.push(v);
             }
         } else if (token.type === TYPE_FILTER) {
-            if (token.sub_type === SUB_TYPE_FUNC) {
-                for (i = 0; i < data.length; i++) {
-                    v = data[i];
-                    if (token.func(v, i, args)) {
-                        res.push(v);
-                    }
-                }
-            } else if (token.sub_type === SUB_TYPE_INDEX) {
+            if (token.sub_type === SUB_TYPE_FUNC)
+                _applyFunc();
+            else if (token.sub_type === SUB_TYPE_INDEX)
                 res = calc_index(data, token.index);
-            }
+        } else if (token.type === TYPE_SUPER_FILTER) {
+            _applyFunc();
         } else if (token.type === TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
                 res.push(token.func(data[i], i, args));
