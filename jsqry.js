@@ -26,7 +26,8 @@
     var TYPE_PATH = 1;
     var TYPE_CALL = 2;
     var TYPE_FILTER = 3;
-    var TYPE_MAP = 4;
+    var TYPE_SUPER_FILTER = 4;
+    var TYPE_MAP = 5;
 
     var SUB_TYPE_FUNC = 1;
     var SUB_TYPE_INDEX = 2;
@@ -39,7 +40,7 @@
             var v = e.val;
             if (t === TYPE_CALL)
                 v = e.call + ',' + v;
-            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
+            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_SUPER_FILTER ? 'F' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
         }
         return res.join(' ');
     }
@@ -59,18 +60,20 @@
     }
 
     var allowedPathLetter = /[A-Za-z0-9_]/;
-    function parse(expr) {
+    function parse(expr, arg_idx0) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
             return cached;
 
         var expr0 = expr;
-        var arg_idx = 0;
+        arg_idx0 = arg_idx0 || 0;
+        var arg_idx = arg_idx0;
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
-        var filter_depth = 0; // nesting of []
-        var map_depth = 0; // nesting of {}
-        var call_depth = 0; // nesting of ()
+        var depth_filter = 0; // nesting of []
+        var depth_super_filter = 0; // nesting of [[]]
+        var depth_map = 0; // nesting of {}
+        var depth_call = 0; // nesting of ()
 
         function start_new_tok(tok_type) {
             var val = token.val = token.val.trim();
@@ -94,6 +97,13 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
+                } else if (type === TYPE_SUPER_FILTER) {
+                    var _ast = jsqry.parse(val, arg_idx);
+                    arg_idx += _ast.args_count;
+                    token.func = function (e, i, args) {
+                        var res = _query_ast(e, _ast, args);
+                        return res.length ? res[0] : null;
+                    };
                 } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
                     func_token(token);
                 }
@@ -111,7 +121,7 @@
                 } else
                     token.val += l;
             } else if (l === '?') {
-                if (token.type !== TYPE_FILTER && token.type !== TYPE_MAP)
+                if (token.type !== TYPE_FILTER && token.type !== TYPE_SUPER_FILTER && token.type !== TYPE_MAP)
                     throw '? at wrong position';
                 if (next === '?') {
                     token.val += l;
@@ -119,43 +129,58 @@
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l === '[') {
-                if (filter_depth === 0 && token.type === TYPE_PATH)
+                if (depth_filter === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_FILTER);
                 else
                     token.val += l;
-                filter_depth++;
+                depth_filter++;
             } else if (l === ']') {
                 if (token.type === TYPE_PATH)
                     throw '] without [';
-                if (token.type === TYPE_FILTER && --filter_depth === 0)
+                if (token.type === TYPE_FILTER && --depth_filter === 0)
+                    start_new_tok(TYPE_PATH);
+                else
+                    token.val += l;
+            } else if (l === '<' && next === '<') {
+                i++;
+                if (depth_super_filter === 0 && token.type === TYPE_PATH)
+                    start_new_tok(TYPE_SUPER_FILTER);
+                else
+                    token.val += l;
+                depth_super_filter++;
+            } else if (l === '>' && next === '>') {
+                i++;
+                if (token.type === TYPE_PATH)
+                    throw '>> without <<';
+                if (token.type === TYPE_SUPER_FILTER && --depth_super_filter === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '{') {
-                if (map_depth === 0 && token.type === TYPE_PATH)
+                if (depth_map === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_MAP);
                 else
                     token.val += l;
-                map_depth++;
+                depth_map++;
             } else if (l === '}') {
                 if (token.type === TYPE_PATH)
                     throw '} without {';
-                if (token.type === TYPE_MAP && --map_depth === 0)
+                if (token.type === TYPE_MAP && --depth_map === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '(') {
-                if (call_depth === 0 && token.type === TYPE_PATH) {
+                if (depth_call === 0 && token.type === TYPE_PATH) {
                     token.call = token.val;
                     token.val = '';
                     token.type = TYPE_CALL
                 } else
                     token.val += l;
-                call_depth++;
+                depth_call++;
             } else if (l === ')') {
                 if (token.type === TYPE_PATH)
                     throw ') without (';
-                if (token.type === TYPE_CALL && --call_depth === 0)
+                if (token.type === TYPE_CALL && --depth_call === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
@@ -168,7 +193,7 @@
 
         start_new_tok(null);//close
 
-        ast.args_count = arg_idx;
+        ast.args_count = arg_idx - arg_idx0;
 
         if (jsqry.cache)
             jsqry.ast_cache[expr0] = ast;
@@ -181,15 +206,19 @@
     }
 
     function query(obj, expr) {
+        var args = Array.prototype.slice.call(arguments, 2);
+        var ast = jsqry.parse(expr);
+        if (args.length !== ast.args_count)
+            throw 'Wrong args count';
+        return _query_ast(obj, ast, args);
+    }
+
+    function _query_ast(obj, ast, args) {
         if (!obj)
             return [];
         if (!is_arr(obj))
             obj = [obj];
 
-        var args = Array.prototype.slice.call(arguments, 2);
-        var ast = jsqry.parse(expr);
-        if (args.length !== ast.args_count)
-            throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
         }
@@ -267,6 +296,16 @@
     function exec(data, token, args) {
         // console.log('Exec', data, token);
         var res = [];
+
+        function _applyFunc() {
+            for (i = 0; i < data.length; i++) {
+                v = data[i];
+                if (token.func(v, i, args)) {
+                    res.push(v);
+                }
+            }
+        }
+
         if (token.type === TYPE_PATH) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
@@ -280,16 +319,12 @@
                     res.push(v);
             }
         } else if (token.type === TYPE_FILTER) {
-            if (token.sub_type === SUB_TYPE_FUNC) {
-                for (i = 0; i < data.length; i++) {
-                    v = data[i];
-                    if (token.func(v, i, args)) {
-                        res.push(v);
-                    }
-                }
-            } else if (token.sub_type === SUB_TYPE_INDEX) {
+            if (token.sub_type === SUB_TYPE_FUNC)
+                _applyFunc();
+            else if (token.sub_type === SUB_TYPE_INDEX)
                 res = calc_index(data, token.index);
-            }
+        } else if (token.type === TYPE_SUPER_FILTER) {
+            _applyFunc();
         } else if (token.type === TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
                 res.push(token.func(data[i], i, args));
