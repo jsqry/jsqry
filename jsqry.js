@@ -121,32 +121,30 @@
                 } else
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l === '[') {
-                var is_dbl = false;
-                if (next === '[') {
-                    i++;
-                    is_dbl = true;
-                }
-                if (token.type === TYPE_PATH) {
-                    if (is_dbl && depth_super_filter === 0) {
-                        start_new_tok(TYPE_SUPER_FILTER);
-                        i++;
-                    } else if (depth_filter === 0)
-                        start_new_tok(TYPE_FILTER);
-                } else
-                    token.val += l;
-                if (is_dbl)
-                    depth_super_filter++;
+                if (depth_filter === 0 && token.type === TYPE_PATH)
+                    start_new_tok(TYPE_FILTER);
                 else
-                    depth_filter++;
+                    token.val += l;
+                depth_filter++;
             } else if (l === ']') {
-                console.info(111,i,token.type, depth_super_filter, depth_filter)
                 if (token.type === TYPE_PATH)
                     throw '] without [';
-                else if (next === ']' && token.type === TYPE_SUPER_FILTER && --depth_super_filter === 0) {
-                    console.info(22)
+                if (token.type === TYPE_FILTER && --depth_filter === 0)
                     start_new_tok(TYPE_PATH);
-                    i++;
-                } else if (token.type === TYPE_FILTER && --depth_filter === 0)
+                else
+                    token.val += l;
+            } else if (l === '<' && next === '<') {
+                i++;
+                if (depth_super_filter === 0 && token.type === TYPE_PATH)
+                    start_new_tok(TYPE_SUPER_FILTER);
+                else
+                    token.val += l;
+                depth_super_filter++;
+            } else if (l === '>' && next === '>') {
+                i++;
+                if (token.type === TYPE_PATH)
+                    throw '>> without <<';
+                if (token.type === TYPE_SUPER_FILTER && --depth_super_filter === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
