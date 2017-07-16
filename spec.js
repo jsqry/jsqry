@@ -121,6 +121,8 @@ describe('Jsqry tests', function () {
         expect(query(data, '<<arr[_.val<?]>>.id', 4)).toEqual([1]);
         expect(query(data, '<<arr[_.val<?]>>.arr.val', 6)).toEqual([2,3,5]);
         expect(query(data, '<<arr[_.val>?]>>.arr.val', 6)).toEqual([7,8,9]);
+        expect(query(data, '<<arr[_.val>?]>><<arr[_.val<?]>>.id', 4, 6)).toEqual([2]);
+        expect(query(data, '<<arr[_.val>?]>><<arr[_.val<?]>>.arr.val', 4, 6)).toEqual([5]);
     });
     it('Should support flatting', function () {
         expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);

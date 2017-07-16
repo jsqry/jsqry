@@ -60,13 +60,14 @@
     }
 
     var allowedPathLetter = /[A-Za-z0-9_]/;
-    function parse(expr) {
+    function parse(expr, arg_idx0) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
             return cached;
 
         var expr0 = expr;
-        var arg_idx = 0;
+        arg_idx0 = arg_idx0 || 0;
+        var arg_idx = arg_idx0;
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
         var depth_filter = 0; // nesting of []
@@ -97,8 +98,11 @@
                         }
                     }
                 } else if (type === TYPE_SUPER_FILTER) {
-                    token.func = function (e) {
-                        return first(e, val)
+                    var _ast = jsqry.parse(val, arg_idx);
+                    arg_idx += _ast.args_count;
+                    token.func = function (e, i, args) {
+                        var res = _query_ast(e, _ast, args);
+                        return res.length ? res[0] : null;
                     };
                 } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
                     func_token(token);
@@ -189,7 +193,7 @@
 
         start_new_tok(null);//close
 
-        ast.args_count = arg_idx;
+        ast.args_count = arg_idx - arg_idx0;
 
         if (jsqry.cache)
             jsqry.ast_cache[expr0] = ast;
@@ -202,15 +206,19 @@
     }
 
     function query(obj, expr) {
+        var args = Array.prototype.slice.call(arguments, 2);
+        var ast = jsqry.parse(expr);
+        if (args.length !== ast.args_count)
+            throw 'Wrong args count';
+        return _query_ast(obj, ast, args);
+    }
+
+    function _query_ast(obj, ast, args) {
         if (!obj)
             return [];
         if (!is_arr(obj))
             obj = [obj];
 
-        var args = Array.prototype.slice.call(arguments, 2);
-        var ast = jsqry.parse(expr);
-        if (args.length !== ast.args_count)
-            throw 'Wrong args count';
         for (var i = 0; i < ast.length; i++) {
             obj = exec(obj, ast[i], args)
         }
