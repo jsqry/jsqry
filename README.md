@@ -36,10 +36,17 @@ For docs and examples please visit [jsqry.github.io](https://jsqry.github.io/).
 
 ## Install
 
+#### Nodejs
 ```
+# for npm
 npm install jsqry
-```
-or
-```
+
+# for Yarn
 yarn add jsqry
+```
+
+#### Web
+
+```
+<script src="https://cdn.jsdelivr.net/gh/jsqry/jsqry@1.1.1/jsqry.js"></script>
 ```
