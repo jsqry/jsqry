@@ -102,7 +102,10 @@
                     arg_idx += _ast.args_count;
                     token.func = function (e, i, args) {
                         var res = _query_ast(e, _ast, args);
-                        return res.length ? res[0] : null;
+                        for (var j=0; j<res.length;j++)
+                            if (res[j])
+                                return true;
+                        return false;
                     };
                 } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
                     func_token(token);

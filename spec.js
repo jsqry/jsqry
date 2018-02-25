@@ -111,6 +111,8 @@ describe('Jsqry tests', function () {
         expect(query(l, '[::2][::-1]')).toEqual(['g', 'e', 'c', 'a']);
     });
     it('Should support super filtering', function () {
+        expect(query(HOTEL, 'facilities<<services[_.visible]>>.name')).toEqual(['Fac 2']);
+        expect(query(HOTEL, 'facilities<<services.visible>>.name')).toEqual(['Fac 2']);
         var data = [
             {id:1, arr:[{val:2}, {val:3}]},
             {id:2, arr:[{val:5}]},
