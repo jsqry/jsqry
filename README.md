@@ -30,8 +30,16 @@ Features include:
 
 More examples of usage: [spec.js](/spec.js)
 
+## Documentation
+
+For docs and examples please visit [jsqry.github.io](https://jsqry.github.io/).
+
 ## Install
 
 ```
 npm install jsqry
+```
+or
+```
+yarn add jsqry
 ```
