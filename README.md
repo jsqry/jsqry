@@ -17,7 +17,7 @@ for (var i = 0; i < users.length; i++) {
 ```
 After:
 ```js
-var name = one(users, '[_.id==?].name', 123);
+var name = first(users, '[_.id==?].name', 123);
 ```
 
 This tiny lib allows to query JS object/arrays in one-liner fashion instead of writing (nested) loops.
