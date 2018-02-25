@@ -24,9 +24,9 @@ This tiny lib allows to query JS object/arrays in one-liner fashion instead of w
 
 Features include:
 
-1. Filtering
-1. Mapping
-1. Python-style array indexing & slicing
+* Filtering
+* Mapping
+* Python-style array indexing & slicing
 
 More examples of usage: [spec.js](/spec.js)
 
