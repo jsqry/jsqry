@@ -38,10 +38,10 @@ For docs and examples please visit [jsqry.github.io](https://jsqry.github.io/).
 
 #### Nodejs
 ```
-# for npm
 npm install jsqry
 
-# for Yarn
+# or
+
 yarn add jsqry
 ```
 
