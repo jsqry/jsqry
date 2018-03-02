@@ -52,7 +52,10 @@ describe('Jsqry tests', function () {
 
         function f1(elt) { return elt > 2 }
         function f2(elt) { return elt + 10 }
-        expect(jsqry.query([1, 2, 3, 4, 5], '[ ?(_) ]{ ?(_) }', f1, f2)).toEqual([13, 14, 15]);
+        expect(query([1, 2, 3, 4, 5], '[ ?(_) ]{ ?(_) }', f1, f2)).toEqual([13, 14, 15]);
+
+        expect(query(["a", "bb", "cCc", "DDdD"], 'length')).toEqual([1,2,3,4]);
+        expect(query(PEOPLE, 'name.length')).toEqual([4,5,4,7,7]);
     });
 
     it("Should correctly handle '?'", function () {
@@ -134,6 +137,7 @@ describe('Jsqry tests', function () {
 
     it('Should support index parameter', function () {
         expect(query([0, 0, 0, 0, 0], '{i}')).toEqual([0, 1, 2, 3, 4]);
+        expect(query(['a', 'b', 'c', 'd', 'e'], '[i>0]')).toEqual(['b', 'c', 'd', 'e']);
         expect(query(['a', 'b', 'c', 'd', 'e'], '[i%2==0]')).toEqual(['a', 'c', 'e']);
     });
 
