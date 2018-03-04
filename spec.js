@@ -56,8 +56,9 @@ describe('Jsqry tests', function () {
         function f2(elt) { return elt + 10 }
         expect(query([1, 2, 3, 4, 5], '[ ?(_) ]{ ?(_) }', f1, f2)).toEqual([13, 14, 15]);
 
-        expect(query(["a", "bb", "cCc", "DDdD"], 'length')).toEqual([1,2,3,4]);
-        expect(query(PEOPLE, 'name.length')).toEqual([4,5,4,7,7]);
+        expect(query([{age:5},{age:1},{age:3}],'s( ?(_) )', function (e) {
+            return e.age;
+        })).toEqual([{age:1},{age:3},{age:5}]);
     });
 
     it("Should correctly handle '?'", function () {
@@ -85,6 +86,9 @@ describe('Jsqry tests', function () {
         expect(query(HOTEL, 'facilities.services').length).toEqual(5);
         expect(query(HOTEL, 'facilities.services.name')).toEqual(['Service 1', 'Service 2', 'Service 3', 'Service 4', 'Service 5']);
         expect(query(HOTEL, 'facilities.services[_.visible!==false].name')).toEqual(['Service 2', 'Service 3', 'Service 5']);
+
+        expect(query(["a", "bb", "cCc", "DDdD"], 'length')).toEqual([1,2,3,4]);
+        expect(query(PEOPLE, 'name.length')).toEqual([4,5,4,7,7]);
     }
     it('Should pass basic tests (1st pass)', basicTests);
     it('Should pass basic tests (test caching)', basicTests);

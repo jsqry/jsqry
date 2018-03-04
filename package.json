@@ -2,7 +2,7 @@
   "name": "jsqry",
   "version": "1.1.2",
   "main": "jsqry.js",
-  "description": "Simple lib to query js objects/arrays",
+  "description": "Simple lib to query JS objects/arrays",
   "keywords": [
     "json",
     "query",
