@@ -122,11 +122,9 @@
         for (var i = 0; i < expr.length; i++) {
             var l = expr[i], next = expr[i + 1];
             if (l === '.') {
-                if (token.type === TYPE_PATH) {
-                    if (next === '.' || !defined(next))
-                        throw '. at wrong position';
+                if (token.type === TYPE_PATH)
                     start_new_tok(TYPE_PATH);
-                } else
+                else
                     token.val += l;
             } else if (l === '?' && token.type !== TYPE_PATH) {
                 if (next === '?') {
