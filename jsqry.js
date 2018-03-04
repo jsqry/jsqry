@@ -59,7 +59,8 @@
         token.func = Function('_,i,args', 'return ' + token.val);
     }
 
-    var allowedPathLetter = /[A-Za-z0-9_]/;
+    var goodPathRe = /^[A-Za-z0-9_]*$/;
+
     function parse(expr, arg_idx0) {
         var cached;
         if (jsqry.cache && (cached = jsqry.ast_cache[expr]))
@@ -74,19 +75,23 @@
         var depth_super_filter = 0; // nesting of [[]]
         var depth_map = 0; // nesting of {}
         var depth_call = 0; // nesting of ()
+        var prevType = null;
 
-        function start_new_tok(tok_type) {
+        function start_new_tok(type) {
             var val = token.val = token.val.trim();
+            var prevPrevType = prevType;
+            prevType = token.type;
             if (token.call)
                 token.call = token.call.trim();
-            var type = token.type;
-            if (tok_type === null && (type === TYPE_FILTER || type === TYPE_MAP || type === TYPE_CALL))
-                throw 'Not closed ' + (type === TYPE_FILTER ? '[' : type === TYPE_MAP ? '{' : type === TYPE_CALL ? '(' : 'wtf');
-            if (!val && type === TYPE_CALL) // handle 's()'
+            if (type === null && (prevType === TYPE_FILTER || prevType === TYPE_MAP || prevType === TYPE_CALL))
+                throw 'Not closed ' + (prevType === TYPE_FILTER ? '[' : prevType === TYPE_MAP ? '{' : prevType === TYPE_CALL ? '(' : 'wtf');
+            if (!val && prevType === TYPE_CALL) // handle 's()'
                 val = token.val = '_';
+            if (prevType === TYPE_PATH && (prevPrevType === TYPE_PATH && !val || val !== '*' && !goodPathRe.test(val)))
+                throw 'Illegal path element "' + val + '" at pos ' + i;
             if (val) { // handle prev token
                 ast.push(token);
-                if (type === TYPE_FILTER) {
+                if (prevType === TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
                         func_token(token)
                     } else { // index/slice
@@ -97,7 +102,7 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (type === TYPE_NESTED_FILTER) {
+                } else if (prevType === TYPE_NESTED_FILTER) {
                     var _ast = jsqry.parse(val, arg_idx);
                     arg_idx += _ast.args_count;
                     token.func = function (e, i, args) {
@@ -107,11 +112,11 @@
                                 return true;
                         return false;
                     };
-                } else if (type === TYPE_MAP || type === TYPE_CALL && token.call) {
+                } else if (prevType === TYPE_MAP || prevType === TYPE_CALL && token.call) {
                     func_token(token);
                 }
             }
-            token = {type: tok_type, val: ''};
+            token = {type: type, val: ''};
         }
 
         for (var i = 0; i < expr.length; i++) {
@@ -123,9 +128,7 @@
                     start_new_tok(TYPE_PATH);
                 } else
                     token.val += l;
-            } else if (l === '?') {
-                if (token.type !== TYPE_FILTER && token.type !== TYPE_NESTED_FILTER && token.type !== TYPE_MAP)
-                    throw '? at wrong position';
+            } else if (l === '?' && token.type !== TYPE_PATH) {
                 if (next === '?') {
                     token.val += l;
                     i++;
@@ -187,11 +190,8 @@
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
-            } else {
-                if (token.type === TYPE_PATH && !allowedPathLetter.test(l))
-                    throw 'disallowed letter in path';
+            } else
                 token.val += l;
-            }
         }
 
         start_new_tok(null);//close

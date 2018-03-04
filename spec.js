@@ -5,7 +5,7 @@ describe('Jsqry tests', function () {
     var parse = jsqry.parse;
     jsqry.parse = function (expr) {
         var res = parse(expr);
-        console.info("PARSE: " + expr + " --> " + jsqry.printAst(res))
+        console.info("PARSE: " + expr + " --> " + jsqry.printAst(res));
         return res;
     };
 
@@ -37,6 +37,8 @@ describe('Jsqry tests', function () {
     };
     var DATA = [{id:1,val:'B'}, {id:2,val:'A'}, {id:3,val:'B'}, {id:2,val:'C'}, {id:1,val:'D'}];
 
+    var _invalidPathElt = /Illegal path element.+/;
+
     it('Should handle placeholders', function () {
         expect(first(PEOPLE, '{[?,?,?,?,?]}', 1, 2, 'a', 'b', 'c')).toEqual([1, 2, 'a', 'b', 'c']);
         expect(first(PEOPLE, '{?}', 1)).toEqual(1);
@@ -47,8 +49,8 @@ describe('Jsqry tests', function () {
         expect(query(100, '{?+?+?+?}', 1, 2, 3, 4)).toEqual([10]);
         expect(function () {query(100, '{?+?+?+?}', 1, 2)}).toThrow('Wrong args count');
         expect(function () {first(100, '{?+?+?+?}', 1, 2, 3, 4, 5)}).toThrow('Wrong args count');
-        expect(function () {query(100, 'a.?.b')}).toThrow('? at wrong position');
-        expect(function () {first(100, 'a.b[0].c?', 1, 2)}).toThrow('? at wrong position');
+        expectException(function () {query(100, 'a.?.b')}, _invalidPathElt);
+        expectException(function () {first(100, 'a.b[0].c?', 1, 2)}, _invalidPathElt);
 
         function f1(elt) { return elt > 2 }
         function f2(elt) { return elt + 10 }
@@ -190,19 +192,30 @@ describe('Jsqry tests', function () {
 
         expect(function () {query(1, '.............')}).toThrow('. at wrong position');
         expect(function () {query(1, 'a.')}).toThrow('. at wrong position');
-        expect(function () {query(1, 'id==?')}).toThrow('disallowed letter in path');
+        expectException(function () {query(1, 'id==?')}, _invalidPathElt);
     });
-    it('Should not tolerate spaces', function () {
+
+    function expectException(testFunc, regex) {
+        try {
+            testFunc();
+            fail('Expected exception ' + regex + ' was not thrown')
+        } catch (s) {
+            if (!regex.test(s))
+                fail('Expected exception ' + regex + ' but "' + s + '" was thrown');
+            expect(1).toEqual(1)
+        }
+    }
+    it('Should tolerate spaces', function () {
         expect(query(DATA, 'u(_.id)s(_.val)u( _.val ).val')).toEqual(['A','B']);
-        expect(function () {query(DATA, 'u(_.id) s(_.val) u( _.val ) .val')}).toThrow('disallowed letter in path');
+        expect(query(DATA, 'u(_.id) s(_.val) u( _.val ) .val')).toEqual(['A','B']);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u( )')).toEqual([2, 4, 1, 5, 3]);
-        expect(function () {query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')}).toThrow('disallowed letter in path');
+        expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ' u( ) ')).toEqual([2, 4, 1, 5, 3]);
         expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g(){ [_[0], _[1].length] }s(-_[1]){_[0]}'))
             .toEqual([2, 4, 3, 5, 1]); // sorted by popularity
-        expect(function () {query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}')})
-            .toThrow('disallowed letter in path');
+        expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], 'g()  { [_[0], _[1].length] }    s(-_[1])   {_[0]}'))
+            .toEqual([2, 4, 3, 5, 1]);
         expect(first({a:{b:{c:{d:{e:123}}}}}, 'a.b.c.d.e')).toEqual(123);
-        expect(function () {first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')}).toThrow('disallowed letter in path');
+        expect(first({a:{b:{c:{d:{e:123}}}}}, ' a.b  .c   .   d.  e ')).toEqual(123);
     });
     it('Should support custom functions', function () {
         jsqry.fn.uc = function (pairs, res) {
