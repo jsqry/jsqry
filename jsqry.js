@@ -310,7 +310,7 @@
         if (token.type === TYPE_PATH) {
             for (var i = 0; i < data.length; i++) {
                 var v = (data[i] || {})[token.val];
-                if (!defined(v) && 'it' === token.val)
+                if (!defined(v) && '*' === token.val)
                     v = data[i];
                 if (is_arr(v)) {
                     for (var j = 0; j < v.length; j++) {

@@ -132,9 +132,11 @@ describe('Jsqry tests', function () {
         expect(query(data, '<<arr[_.val>?]>><<arr[_.val<?]>>.arr.val', 4, 6)).toEqual([5]);
     });
     it('Should support flatting', function () {
-        expect(query([{it: [{a: 1}, {a: 2}]}, {it: [{a: 3}]}], 'it.a')).toEqual([1, 2, 3]);
-        expect(query([[{a: 1}, {a: 2}], [{a: 3}]], 'it.a')).toEqual([1, 2, 3]);
-        expect(query([[1, 2, 3], [4, 5], [6]], 'it')).toEqual([1, 2, 3, 4, 5, 6]);
+        expect(query([{k: [{a: 1}, {a: 2}]}, {k: [{a: 3}]}], 'k.*.a')).toEqual([1, 2, 3]);
+        expect(query([[{a: 1}, {a: 2}], [{a: 3}]], '*.a')).toEqual([1, 2, 3]);
+        expect(query([[1, 2, 3], [4, 5], [6]], '*')).toEqual([1, 2, 3, 4, 5, 6]);
+        expect(query([["a", "bb"], ["cccc", ["dd"]]], '*')).toEqual(["a", "bb", "cccc", ["dd"]]);
+        expect(query([["a", "bb"], ["cccc", ["dd"]]], '*.*')).toEqual(["a", "bb", "cccc", "dd"]);
     });
 
     it('Should support index parameter', function () {
@@ -154,7 +156,7 @@ describe('Jsqry tests', function () {
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], '.u(_)')).toEqual([2, 4, 1, 5, 3]);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()')).toEqual([2, 4, 1, 5, 3]);
         expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], 'u()s()')).toEqual([1, 2, 3, 4, 5]);
-        expect(query([[2], [4], [1], [4], [5], [3], [3], [1], [4], [2], [5]], 'it.u(_)')).toEqual([2, 4, 1, 5, 3]);
+        expect(query([[2], [4], [1], [4], [5], [3], [3], [1], [4], [2], [5]], '*.u(_)')).toEqual([2, 4, 1, 5, 3]);
         expect(query(DATA, 'u(_.id)s(_.val)u(_.val).val')).toEqual(['A','B']);
         expect(query(DATA, '.u(_.id).u(_.val).s(_.val).val')).toEqual(['A','B']);
         expect(query(DATA, '{ {a:_} }.a.u(_.id)u(_.val)s(_.val).val')).toEqual(['A','B']);
@@ -238,6 +240,6 @@ describe('Jsqry tests', function () {
         // difference
         expect(query([1, 2, 1, 0, 3, 1, 4], '[?.indexOf(_)<0]', [0, 1])).toEqual([2, 3, 4]);
         // union
-        expect(query([[1, 2, 3], [101, 2, 1, 10], [2, 1]], 'it.u()')).toEqual([1, 2, 3, 101, 10]);
+        expect(query([[1, 2, 3], [101, 2, 1, 10], [2, 1]], '*.u()')).toEqual([1, 2, 3, 101, 10]);
     })
 });
