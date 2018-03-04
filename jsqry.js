@@ -26,7 +26,7 @@
     var TYPE_PATH = 1;
     var TYPE_CALL = 2;
     var TYPE_FILTER = 3;
-    var TYPE_SUPER_FILTER = 4;
+    var TYPE_NESTED_FILTER = 4;
     var TYPE_MAP = 5;
 
     var SUB_TYPE_FUNC = 1;
@@ -40,7 +40,7 @@
             var v = e.val;
             if (t === TYPE_CALL)
                 v = e.call + ',' + v;
-            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_SUPER_FILTER ? 'F' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
+            res.push((t === TYPE_PATH ? 'p' : t === TYPE_FILTER ? 'f' : t === TYPE_NESTED_FILTER ? 'F' : t === TYPE_MAP ? 'm' : 'c') + '(' + v + ')')
         }
         return res.join(' ');
     }
@@ -97,7 +97,7 @@
                             idx[j] = parseInt(idx[j])
                         }
                     }
-                } else if (type === TYPE_SUPER_FILTER) {
+                } else if (type === TYPE_NESTED_FILTER) {
                     var _ast = jsqry.parse(val, arg_idx);
                     arg_idx += _ast.args_count;
                     token.func = function (e, i, args) {
@@ -124,7 +124,7 @@
                 } else
                     token.val += l;
             } else if (l === '?') {
-                if (token.type !== TYPE_FILTER && token.type !== TYPE_SUPER_FILTER && token.type !== TYPE_MAP)
+                if (token.type !== TYPE_FILTER && token.type !== TYPE_NESTED_FILTER && token.type !== TYPE_MAP)
                     throw '? at wrong position';
                 if (next === '?') {
                     token.val += l;
@@ -147,7 +147,7 @@
             } else if (l === '<' && next === '<') {
                 i++;
                 if (depth_super_filter === 0 && token.type === TYPE_PATH)
-                    start_new_tok(TYPE_SUPER_FILTER);
+                    start_new_tok(TYPE_NESTED_FILTER);
                 else
                     token.val += l;
                 depth_super_filter++;
@@ -155,7 +155,7 @@
                 i++;
                 if (token.type === TYPE_PATH)
                     throw '>> without <<';
-                if (token.type === TYPE_SUPER_FILTER && --depth_super_filter === 0)
+                if (token.type === TYPE_NESTED_FILTER && --depth_super_filter === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
@@ -326,7 +326,7 @@
                 _applyFunc();
             else if (token.sub_type === SUB_TYPE_INDEX)
                 res = calc_index(data, token.index);
-        } else if (token.type === TYPE_SUPER_FILTER) {
+        } else if (token.type === TYPE_NESTED_FILTER) {
             _applyFunc();
         } else if (token.type === TYPE_MAP) {
             for (i = 0; i < data.length; i++) {
