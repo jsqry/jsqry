@@ -72,7 +72,7 @@
         var ast = [];
         var token = {type: TYPE_PATH, val: ''};
         var depth_filter = 0; // nesting of []
-        var depth_super_filter = 0; // nesting of [[]]
+        var depth_nested_filter = 0; // nesting of <<>>
         var depth_map = 0; // nesting of {}
         var depth_call = 0; // nesting of ()
         var prevType = null;
@@ -147,16 +147,16 @@
                     token.val += l;
             } else if (l === '<' && next === '<') {
                 i++;
-                if (depth_super_filter === 0 && token.type === TYPE_PATH)
+                if (depth_nested_filter === 0 && token.type === TYPE_PATH)
                     start_new_tok(TYPE_NESTED_FILTER);
                 else
                     token.val += l;
-                depth_super_filter++;
+                depth_nested_filter++;
             } else if (l === '>' && next === '>') {
                 i++;
                 if (token.type === TYPE_PATH)
                     throw '>> without <<';
-                if (token.type === TYPE_NESTED_FILTER && --depth_super_filter === 0)
+                if (token.type === TYPE_NESTED_FILTER && --depth_nested_filter === 0)
                     start_new_tok(TYPE_PATH);
                 else
                     token.val += l;
