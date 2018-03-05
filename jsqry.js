@@ -1,14 +1,12 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
+        // AMD
         define([], factory);
     } else if (typeof module === 'object' && module.exports) {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
-        // like Node.
+        // Node
         module.exports = factory();
     } else {
-        // Browser globals (root is window)
+        // Browser
         root.jsqry = factory();
     }
 }(this, function (undefined) {
@@ -49,12 +47,12 @@
         return v !== undefined;
     }
 
-    function is_arr(obj) {
+    function isArr(obj) {
         if (obj == null) return false;
         return defined(obj.length) && typeof obj !== 'string';
     }
 
-    function func_token(token) {
+    function funcToken(token) {
         token.sub_type = SUB_TYPE_FUNC;
         token.func = Function('_,i,args', 'return ' + token.val);
     }
@@ -77,7 +75,7 @@
         var depth_call = 0; // nesting of ()
         var prevType = null;
 
-        function start_new_tok(type) {
+        function startNewTok(type) {
             var val = token.val = token.val.trim();
             var prevPrevType = prevType;
             prevType = token.type;
@@ -93,7 +91,7 @@
                 ast.push(token);
                 if (prevType === TYPE_FILTER) {
                     if (val.indexOf('_') >= 0 || val.indexOf('i') >= 0) { // function
-                        func_token(token)
+                        funcToken(token)
                     } else { // index/slice
                         token.sub_type = SUB_TYPE_INDEX;
                         var idx = val.split(':');
@@ -106,14 +104,14 @@
                     var _ast = jsqry.parse(val, arg_idx);
                     arg_idx += _ast.args_count;
                     token.func = function (e, i, args) {
-                        var res = _query_ast(e, _ast, args);
+                        var res = _queryAst(e, _ast, args);
                         for (var j=0; j<res.length;j++)
                             if (res[j])
                                 return true;
                         return false;
                     };
                 } else if (prevType === TYPE_MAP || prevType === TYPE_CALL && token.call) {
-                    func_token(token);
+                    funcToken(token);
                 }
             }
             token = {type: type, val: ''};
@@ -123,7 +121,7 @@
             var l = expr[i], next = expr[i + 1];
             if (l === '.') {
                 if (token.type === TYPE_PATH)
-                    start_new_tok(TYPE_PATH);
+                    startNewTok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '?' && token.type !== TYPE_PATH) {
@@ -134,7 +132,7 @@
                     token.val += 'args[' + arg_idx++ + ']';
             } else if (l === '[') {
                 if (depth_filter === 0 && token.type === TYPE_PATH)
-                    start_new_tok(TYPE_FILTER);
+                    startNewTok(TYPE_FILTER);
                 else
                     token.val += l;
                 depth_filter++;
@@ -142,13 +140,13 @@
                 if (token.type === TYPE_PATH)
                     throw '] without [';
                 if (token.type === TYPE_FILTER && --depth_filter === 0)
-                    start_new_tok(TYPE_PATH);
+                    startNewTok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '<' && next === '<') {
                 i++;
                 if (depth_nested_filter === 0 && token.type === TYPE_PATH)
-                    start_new_tok(TYPE_NESTED_FILTER);
+                    startNewTok(TYPE_NESTED_FILTER);
                 else
                     token.val += l;
                 depth_nested_filter++;
@@ -157,12 +155,12 @@
                 if (token.type === TYPE_PATH)
                     throw '>> without <<';
                 if (token.type === TYPE_NESTED_FILTER && --depth_nested_filter === 0)
-                    start_new_tok(TYPE_PATH);
+                    startNewTok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '{') {
                 if (depth_map === 0 && token.type === TYPE_PATH)
-                    start_new_tok(TYPE_MAP);
+                    startNewTok(TYPE_MAP);
                 else
                     token.val += l;
                 depth_map++;
@@ -170,7 +168,7 @@
                 if (token.type === TYPE_PATH)
                     throw '} without {';
                 if (token.type === TYPE_MAP && --depth_map === 0)
-                    start_new_tok(TYPE_PATH);
+                    startNewTok(TYPE_PATH);
                 else
                     token.val += l;
             } else if (l === '(') {
@@ -185,14 +183,14 @@
                 if (token.type === TYPE_PATH)
                     throw ') without (';
                 if (token.type === TYPE_CALL && --depth_call === 0)
-                    start_new_tok(TYPE_PATH);
+                    startNewTok(TYPE_PATH);
                 else
                     token.val += l;
             } else
                 token.val += l;
         }
 
-        start_new_tok(null);//close
+        startNewTok(null); // close
 
         ast.args_count = arg_idx - arg_idx0;
 
@@ -211,13 +209,13 @@
         var ast = jsqry.parse(expr);
         if (args.length !== ast.args_count)
             throw 'Wrong args count';
-        return _query_ast(obj, ast, args);
+        return _queryAst(obj, ast, args);
     }
 
-    function _query_ast(obj, ast, args) {
+    function _queryAst(obj, ast, args) {
         if (!obj)
             return [];
-        if (!is_arr(obj))
+        if (!isArr(obj))
             obj = [obj];
 
         for (var i = 0; i < ast.length; i++) {
@@ -227,7 +225,7 @@
         return obj;
     }
 
-    function norm_idx(is_from, idx, len, step) {
+    function normIdx(is_from, idx, len, step) {
         if (isNaN(idx))
             idx = is_from
                 ? (step > 0 ? 0 : -1)
@@ -237,20 +235,20 @@
         return idx;
     }
 
-    function calc_index(list, index) {
+    function calcIndex(list, index) {
         // console.info('idx', list, index)
         var res = [];
         var idx_cnt = index.length;
         var len = list.length;
         if (idx_cnt === 1) {
-            var val = list[norm_idx(1, index[0], len)];
+            var val = list[normIdx(1, index[0], len)];
             if (defined(val))
                 res.push(val);
         } else if (idx_cnt >= 2) {
             var step = idx_cnt === 3 ? index[2] : 1;
             if (isNaN(step)) step = 1;
-            var from = norm_idx(1, index[0], len, step);
-            var to = norm_idx(0, index[1], len, step);
+            var from = normIdx(1, index[0], len, step);
+            var to = normIdx(0, index[1], len, step);
             for (var i = from; step > 0 ? i < to : i > to; i += step) {
                 val = list[i];
                 if (defined(val))
@@ -312,7 +310,7 @@
                 var v = (data[i] || {})[token.val];
                 if (!defined(v) && '*' === token.val)
                     v = data[i];
-                if (is_arr(v)) {
+                if (isArr(v)) {
                     for (var j = 0; j < v.length; j++) {
                         res.push(v[j]);
                     }
@@ -323,7 +321,7 @@
             if (token.sub_type === SUB_TYPE_FUNC)
                 _applyFunc();
             else if (token.sub_type === SUB_TYPE_INDEX)
-                res = calc_index(data, token.index);
+                res = calcIndex(data, token.index);
         } else if (token.type === TYPE_NESTED_FILTER) {
             _applyFunc();
         } else if (token.type === TYPE_MAP) {

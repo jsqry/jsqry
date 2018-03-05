@@ -232,6 +232,20 @@ describe('Jsqry tests', function () {
             }
         };
         expect(query(['a', 'bB', 'cCccC'], 'uc()')).toEqual(['A', 'BB', 'CCCCC']);
+        jsqry.fn.partition = function (pairs, res) {
+            var trueElts = [];
+            var falseElts = [];
+            res.push(trueElts, falseElts);
+            for (var i = 0; i < pairs.length; i++) {
+                var v = pairs[i][0];
+                var vf = pairs[i][1];
+                if (vf)
+                    trueElts.push(v);
+                else
+                    falseElts.push(v);
+            }
+        };
+        expect(query([1, 2, 3, 4],'partition( _ % 2 )')).toEqual([[1, 3], [2, 4]]);
     });
     it('Should support tricks', function () {
         // zip
