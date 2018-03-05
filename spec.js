@@ -237,12 +237,13 @@ describe('Jsqry tests', function () {
             var falseElts = [];
             res.push(trueElts, falseElts);
             for (var i = 0; i < pairs.length; i++) {
-                var v = pairs[i][0];
-                var vf = pairs[i][1];
-                if (vf)
-                    trueElts.push(v);
+                var pair = pairs[i];
+                var e = pair[0]; // input element
+                var v = pair[1]; // function result for it
+                if (v)
+                    trueElts.push(e);
                 else
-                    falseElts.push(v);
+                    falseElts.push(e);
             }
         };
         expect(query([1, 2, 3, 4],'partition( _ % 2 )')).toEqual([[1, 3], [2, 4]]);
