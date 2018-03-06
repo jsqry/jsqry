@@ -5,7 +5,7 @@
 Simple lib to query JS objects/arrays.
 
 Before:
-```js
+```javascript
 var name;
 for (var i = 0; i < users.length; i++) {
     if (users[i].id == 123) {
@@ -16,7 +16,7 @@ for (var i = 0; i < users.length; i++) {
 
 ```
 After:
-```js
+```javascript
 var name = first(users, '[_.id==?].name', 123);
 ```
 
@@ -28,8 +28,6 @@ Features include:
 * Mapping
 * Python-style array indexing & slicing
 
-More examples of usage: [spec.js](/spec.js)
-
 ## Documentation
 
 For docs and examples please visit [jsqry.github.io](https://jsqry.github.io/).
@@ -37,16 +35,18 @@ For docs and examples please visit [jsqry.github.io](https://jsqry.github.io/).
 ## Install
 
 #### Nodejs
-```
+```bash
 npm install jsqry
+```
 
-# or
+or
 
+```bash
 yarn add jsqry
 ```
 
 #### Web
 
 ```
-<script src="https://cdn.jsdelivr.net/gh/jsqry/jsqry@1.1.1/jsqry.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/jsqry/jsqry@1.2.0/jsqry.js"></script>
 ```

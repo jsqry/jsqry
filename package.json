@@ -1,6 +1,6 @@
 {
   "name": "jsqry",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "main": "jsqry.js",
   "description": "Simple lib to query JS objects/arrays",
   "keywords": [
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:xonixx/jsqry.git"
+    "url": "git@github.com:jsqry/jsqry.git"
   },
   "dependencies": {}
 }
