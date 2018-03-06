@@ -4,7 +4,10 @@
 
 Simple lib to query JS objects/arrays.
 
+This tiny lib allows to query JS object/arrays in one-liner fashion instead of writing loops (possibly nested).
+
 Before:
+
 ```javascript
 var name;
 for (var i = 0; i < users.length; i++) {
@@ -13,20 +16,20 @@ for (var i = 0; i < users.length; i++) {
         break;
     }
 }
-
 ```
+
 After:
+
 ```javascript
 var name = first(users, '[_.id==?].name', 123);
 ```
-
-This tiny lib allows to query JS object/arrays in one-liner fashion instead of writing (nested) loops.
 
 Features include:
 
 * Filtering
 * Mapping
 * Python-style array indexing & slicing
+* lot more!
 
 ## Documentation
 
