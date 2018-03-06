@@ -50,6 +50,6 @@ yarn add jsqry
 
 #### Web
 
-```
+```html
 <script src="https://cdn.jsdelivr.net/gh/jsqry/jsqry@1.2.0/jsqry.js"></script>
 ```
