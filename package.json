@@ -1,12 +1,14 @@
 {
   "name": "jsqry",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "jsqry.js",
+  "types": "jsqry.d.ts",
   "description": "Simple lib to query JS objects/arrays",
   "keywords": [
     "json",
     "query",
-    "filter"
+    "filter",
+    "transform"
   ],
   "homepage": "https://github.com/jsqry/jsqry",
   "license": "MIT",

@@ -4,7 +4,7 @@
 
 Simple lib to query JS objects/arrays.
 
-This tiny lib allows to query JS object/arrays in one-liner fashion instead of writing loops (possibly nested).
+This tiny lib allows to query JS object/arrays in one-liner fashion instead of writing tedious loops (possibly nested).
 
 Before:
 
@@ -29,7 +29,7 @@ Features include:
 * Filtering
 * Mapping
 * Python-style array indexing & slicing
-* lot more!
+* [lot more!](jsqry.github.io)
 
 ## Documentation
 
