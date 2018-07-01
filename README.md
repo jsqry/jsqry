@@ -29,7 +29,7 @@ Features include:
 * Filtering
 * Mapping
 * Python-style array indexing & slicing
-* [lot more!](jsqry.github.io)
+* [lot more!](https://jsqry.github.io/)
 
 ## Documentation
 
