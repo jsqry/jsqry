@@ -1,17 +1,17 @@
 const jsqry = require("./jsqry");
 
 describe("Jsqry tests", function () {
-  var query = jsqry.query;
-  var first = jsqry.first;
+  const query = jsqry.query;
+  const first = jsqry.first;
 
-  var parse = jsqry.parse;
+  const parse = jsqry.parse;
   jsqry.parse = function (expr) {
-    var res = parse(expr);
+    const res = parse(expr);
     console.info("PARSE: " + expr + " --> " + jsqry.printAst(res));
     return res;
   };
 
-  var PEOPLE = [
+  const PEOPLE = [
     { id: 1, name: "Alex" },
     { id: 2, name: "Serge" },
     { id: 3, name: "Vlad" },
@@ -19,7 +19,7 @@ describe("Jsqry tests", function () {
     { id: 5, name: "Michael" },
   ];
 
-  var HOTEL = {
+  const HOTEL = {
     name: "Name",
     facilities: [
       {
@@ -41,7 +41,7 @@ describe("Jsqry tests", function () {
       { name: "Fac 4" },
     ],
   };
-  var DATA = [
+  const DATA = [
     { id: 1, val: "B" },
     { id: 2, val: "A" },
     { id: 3, val: "B" },
@@ -49,7 +49,7 @@ describe("Jsqry tests", function () {
     { id: 1, val: "D" },
   ];
 
-  var _invalidPathElt = /Illegal path element.+/;
+  const _invalidPathElt = /Illegal path element.+/;
 
   it("Should handle placeholders", function () {
     expect(first(PEOPLE, "{[?,?,?,?,?]}", 1, 2, "a", "b", "c")).toEqual([
@@ -212,7 +212,7 @@ describe("Jsqry tests", function () {
   it("Should pass basic tests (test caching)", basicTests);
 
   it("Should pass array indexing & slicing", function () {
-    var l = ["a", "b", "c", "d", "e", "f", "g"];
+    const l = ["a", "b", "c", "d", "e", "f", "g"];
 
     expect(first([], "")).toEqual(null);
     expect(first([], "[0]")).toEqual(null);
@@ -244,7 +244,7 @@ describe("Jsqry tests", function () {
     expect(query(HOTEL, "facilities<<services.visible>>.name")).toEqual([
       "Fac 2",
     ]);
-    var data = [
+    const data = [
       { id: 1, arr: [{ val: 2 }, { val: 3 }] },
       { id: 2, arr: [{ val: 5 }] },
       { id: 3, arr: [{ val: 7 }, { val: 8 }, { val: 9 }] },
@@ -540,20 +540,20 @@ describe("Jsqry tests", function () {
   });
   it("Should support custom functions", function () {
     jsqry.fn.uc = function (pairs, res) {
-      for (var i = 0; i < pairs.length; i++) {
-        var v = pairs[i][0];
+      for (let i = 0; i < pairs.length; i++) {
+        const v = pairs[i][0];
         res.push(v ? v.toUpperCase() : null);
       }
     };
     expect(query(["a", "bB", "cCccC"], "uc()")).toEqual(["A", "BB", "CCCCC"]);
     jsqry.fn.partition = function (pairs, res) {
-      var trueElts = [];
-      var falseElts = [];
+      const trueElts = [];
+      const falseElts = [];
       res.push(trueElts, falseElts);
-      for (var i = 0; i < pairs.length; i++) {
-        var pair = pairs[i];
-        var e = pair[0]; // input element
-        var v = pair[1]; // function result for it
+      for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        const e = pair[0]; // input element
+        const v = pair[1]; // function result for it
         if (v) trueElts.push(e);
         else falseElts.push(e);
       }
