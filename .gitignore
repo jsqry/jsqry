@@ -3,4 +3,4 @@
 *.iws
 
 node_modules/
-
+coverage/

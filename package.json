@@ -21,7 +21,8 @@
     "url": "git@github.com:jsqry/jsqry.git"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "dependencies": {},
   "devDependencies": {
