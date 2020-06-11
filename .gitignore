@@ -2,3 +2,5 @@
 *.iml
 *.iws
 
+node_modules/
+

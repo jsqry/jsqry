@@ -20,5 +20,12 @@
     "type": "git",
     "url": "git@github.com:jsqry/jsqry.git"
   },
-  "dependencies": {}
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5"
+  }
 }
