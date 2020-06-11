@@ -1,6 +1,7 @@
 # jsqry
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/xonixx/jsqry/master/LICENSE)
 [![npm](https://img.shields.io/npm/v/jsqry.svg)](https://www.npmjs.com/package/jsqry)
+[![Coverage Status](https://coveralls.io/repos/github/jsqry/jsqry/badge.svg?branch=master)](https://coveralls.io/github/jsqry/jsqry?branch=master)
 
 Simple lib to query JS objects/arrays.
 
