@@ -85,6 +85,7 @@
     let depth_map = 0; // nesting of {}
     let depth_call = 0; // nesting of ()
     let prevType = null;
+    let i; // pos
 
     function startNewTok(type) {
       let val = (token.val = token.val.trim());
@@ -128,7 +129,7 @@
             token.sub_type = SUB_TYPE_INDEX;
             const idx = val.split(":");
             token.index = idx;
-            for (var j = 0; j < idx.length; j++) {
+            for (let j = 0; j < idx.length; j++) {
               idx[j] = parseInt(idx[j]);
             }
           }
@@ -152,7 +153,7 @@
       token = { type: type, val: "" };
     }
 
-    for (var i = 0; i < expr.length; i++) {
+    for (i = 0; i < expr.length; i++) {
       const l = expr[i],
         next = expr[i + 1];
       if (l === ".") {
@@ -253,7 +254,7 @@
     const idx_cnt = index.length;
     const len = list.length;
     if (idx_cnt === 1) {
-      var val = list[normIdx(1, index[0], len)];
+      const val = list[normIdx(1, index[0], len)];
       if (defined(val)) res.push(val);
     } else if (idx_cnt >= 2) {
       let step = idx_cnt === 3 ? index[2] : 1;
@@ -261,7 +262,7 @@
       const from = normIdx(1, index[0], len, step);
       const to = normIdx(0, index[1], len, step);
       for (let i = from; step > 0 ? i < to : i > to; i += step) {
-        val = list[i];
+        const val = list[i];
         if (defined(val)) res.push(val);
       }
     }
@@ -306,8 +307,8 @@
     let res = [];
 
     function _applyFunc() {
-      for (i = 0; i < data.length; i++) {
-        v = data[i];
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i];
         if (token.func(v, i, args)) {
           res.push(v);
         }
@@ -315,14 +316,18 @@
     }
 
     if (token.type === TYPE_PATH) {
-      for (var i = 0; i < data.length; i++) {
-        var v = (data[i] || {})[token.val];
-        if (!defined(v) && "*" === token.val) v = data[i];
+      for (let i = 0; i < data.length; i++) {
+        let v = (data[i] || {})[token.val];
+        if (!defined(v) && "*" === token.val) {
+          v = data[i];
+        }
         if (isArr(v)) {
           for (let j = 0; j < v.length; j++) {
             res.push(v[j]);
           }
-        } else if (defined(v) && v !== null) res.push(v);
+        } else if (defined(v) && v !== null) {
+          res.push(v);
+        }
       }
     } else if (token.type === TYPE_FILTER) {
       if (token.sub_type === SUB_TYPE_FUNC) _applyFunc();
@@ -331,7 +336,7 @@
     } else if (token.type === TYPE_NESTED_FILTER) {
       _applyFunc();
     } else if (token.type === TYPE_MAP) {
-      for (i = 0; i < data.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         res.push(token.func(data[i], i, args));
       }
     } else if (token.type === TYPE_CALL) {
@@ -339,8 +344,8 @@
       const f = fn[fname];
       if (!f) throw 'not valid call: "' + fname + '"';
       const pairs = [];
-      for (i = 0; i < data.length; i++) {
-        v = data[i];
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i];
         pairs.push([v, token.func(v, i, args)]);
       }
       f(pairs, res);
