@@ -477,6 +477,9 @@ describe("Jsqry tests", function () {
     expect(function () {
       query(1, "b{_+1}}");
     }).toThrow("} without {");
+    expect(function () {
+      query(1, "<_>>");
+    }).toThrow(">> without <<");
 
     expectException(function () {
       query(1, ". .  .");
