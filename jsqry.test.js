@@ -242,6 +242,7 @@ describe("Jsqry tests", function () {
     expect(query(l, "[::-2]")).toEqual(["g", "e", "c", "a"]);
     expect(query(l, "[::2][::-1]")).toEqual(["g", "e", "c", "a"]);
   });
+
   it("Should support super filtering", function () {
     expect(query(HOTEL, "facilities<<services[_.visible]>>.name")).toEqual([
       "Fac 2",
@@ -266,6 +267,7 @@ describe("Jsqry tests", function () {
       query(data, "<<arr[_.val>?]>><<arr[_.val<?]>>.arr.val", 4, 6)
     ).toEqual([5]);
   });
+
   it("Should support flatting", function () {
     expect(
       query([{ k: [{ a: 1 }, { a: 2 }] }, { k: [{ a: 3 }] }], "k.*.a")
@@ -307,6 +309,24 @@ describe("Jsqry tests", function () {
     ]);
   });
 
+  it("Should handle blank values properly", function () {
+    expect(query([{ a: 1 }, { a: 2 }, null], "a")).toEqual([1, 2]);
+    expect(query([{ a: 1 }, { a: 2 }, undefined], "a")).toEqual([1, 2]);
+    expect(query([{ a: 1 }, undefined, { a: 2 }], "a")).toEqual([1, 2]);
+    expect(query([{ a: 1 }, { a: 2 }, {}], "a")).toEqual([1, 2]);
+    expect(query([{ a: 1 }, { a: 2 }, 7], "a")).toEqual([1, 2]);
+    expect(
+      query([{ a: { b: 1 } }, { a: { b: 2 } }, { a: {} }], "a.b")
+    ).toEqual([1, 2]);
+    expect(query([{ a: { b: 1 } }, { a: { b: 2 } }, {}], "a.b")).toEqual([
+      1,
+      2,
+    ]);
+    expect(
+      query([{ a: { b: 1 } }, { a: { b: 2 } }, undefined], "a.b")
+    ).toEqual([1, 2]);
+  });
+
   it("Should support sorting", function () {
     expect(query([2, 4, 1, 5, 3], "s(_)")).toEqual([1, 2, 3, 4, 5]);
     expect(query([2, 4, 1, 5, 3], ".s()")).toEqual([1, 2, 3, 4, 5]);
@@ -324,6 +344,7 @@ describe("Jsqry tests", function () {
       )
     ).toEqual([55, 44, 33, 22, 11]);
   });
+
   it("Should support unique", function () {
     expect(query([2, 4, 1, 4, 5, 3, 3, 1, 4, 2, 5], ".u(_)")).toEqual([
       2,
