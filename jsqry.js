@@ -137,7 +137,9 @@
           arg_idx += _ast.args_count;
           token.func = function (e, i, args) {
             const res = _queryAst(e, _ast, args);
-            for (let j = 0; j < res.length; j++) if (res[j]) return true;
+            for (let j = 0; j < res.length; j++) {
+              if (res[j]) return true;
+            }
             return false;
           };
         } else if (
@@ -339,7 +341,7 @@
       const pairs = [];
       for (i = 0; i < data.length; i++) {
         v = data[i];
-        pairs.push([v, token.func ? token.func(v, i, args) : v]);
+        pairs.push([v, token.func(v, i, args)]);
       }
       f(pairs, res);
     }
