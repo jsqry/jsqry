@@ -210,6 +210,11 @@ describe("Jsqry tests", function () {
   }
   it("Should pass basic tests (1st pass)", basicTests);
   it("Should pass basic tests (test caching)", basicTests);
+  it("Should pass basic tests (caching = off)", () => {
+    jsqry.cache = false;
+    basicTests();
+    jsqry.cache = true;
+  });
 
   it("Should pass array indexing & slicing", function () {
     const l = ["a", "b", "c", "d", "e", "f", "g"];
