@@ -169,6 +169,10 @@ describe("Jsqry tests", function () {
   });
 
   function basicTests() {
+    expect(query(null, "a")).toEqual([]);
+    expect(query(undefined, "a[_>7]")).toEqual([]);
+    expect(first(null, "a")).toEqual(null);
+    expect(first(undefined, "a[_>7]")).toEqual(null);
     expect(
       query({ ll: PEOPLE }, "ll.name{_.toUpperCase()}{_.length}[_>=5][1]")
     ).toEqual([7]);
@@ -377,6 +381,7 @@ describe("Jsqry tests", function () {
       "B",
     ]);
   });
+
   it("Should support grouping", function () {
     expect(query([1, 2, 3, 2, 2, 3, 4, 4, 2, 4, 5, 5], "g()")).toEqual([
       [1, [1]],
@@ -473,6 +478,7 @@ describe("Jsqry tests", function () {
       [3, [{ id: 3, val: 4 }]],
     ]);
   });
+
   it("Should fail on incorrect input", function () {
     expect(function () {
       query(1, "a[id==1");
@@ -531,6 +537,7 @@ describe("Jsqry tests", function () {
       expect(1).toEqual(1);
     }
   }
+
   it("Should tolerate spaces", function () {
     expect(query(DATA, "u(_.id)s(_.val)u( _.val ).val")).toEqual(["A", "B"]);
     expect(query(DATA, "u(_.id) s(_.val) u( _.val ) .val")).toEqual(["A", "B"]);
@@ -567,6 +574,7 @@ describe("Jsqry tests", function () {
       first({ a: { b: { c: { d: { e: 123 } } } } }, " a.b  .c   .   d.  e ")
     ).toEqual(123);
   });
+
   it("Should support custom functions", function () {
     jsqry.fn.uc = function (pairs, res) {
       for (let i = 0; i < pairs.length; i++) {
@@ -592,6 +600,7 @@ describe("Jsqry tests", function () {
       [2, 4],
     ]);
   });
+
   it("Should support tricks", function () {
     // zip
     expect(
