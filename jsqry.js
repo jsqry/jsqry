@@ -130,7 +130,10 @@
             const idx = val.split(":");
             token.index = idx;
             for (let j = 0; j < idx.length; j++) {
-              idx[j] = parseInt(idx[j]);
+              const v = idx[j].trim();
+              const vI = parseInt(v);
+              if (v && isNaN(vI)) throw 'Not an int slice index: "' + v + '"';
+              idx[j] = vI;
             }
           }
         } else if (prevType === TYPE_NESTED_FILTER) {
