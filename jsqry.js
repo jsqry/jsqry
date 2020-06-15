@@ -187,9 +187,10 @@
       } else if (l === ">" && next === ">") {
         i++;
         if (token.type === TYPE_PATH) throw ">> without <<";
-        if (token.type === TYPE_NESTED_FILTER && --depth_nested_filter === 0)
+        if (token.type === TYPE_NESTED_FILTER && --depth_nested_filter === 0) {
+          if (!token.val.trim()) throw "Empty <<>>";
           startNewTok(TYPE_PATH);
-        else token.val += l;
+        } else token.val += l;
       } else if (l === "{") {
         if (depth_map === 0 && token.type === TYPE_PATH) startNewTok(TYPE_MAP);
         else token.val += l;

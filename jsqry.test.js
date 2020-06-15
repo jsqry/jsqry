@@ -534,8 +534,10 @@ describe("Jsqry tests", function () {
 
     expect(() => query(l, "[]")).toThrow("Empty []");
     expect(() => query(l, "a[ ]")).toThrow("Empty []");
-    expect(() => query(l, "{}}")).toThrow("Empty {}");
+    expect(() => query(l, "{}")).toThrow("Empty {}");
     expect(() => query(l, "a{ }")).toThrow("Empty {}");
+    expect(() => query(l, "<<>>")).toThrow("Empty <<>>");
+    expect(() => query(l, "a<< >>")).toThrow("Empty <<>>");
     expect(() => query(l, "[zzz]")).toThrow('Not an int slice index: "zzz"');
     expect(() => query(l, "[:zzz1]")).toThrow('Not an int slice index: "zzz1"');
     expect(() => query(l, "[::zzz2]")).toThrow(
