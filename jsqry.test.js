@@ -223,12 +223,6 @@ describe("Jsqry tests", function () {
   it("Should pass array indexing & slicing", function () {
     const l = ["a", "b", "c", "d", "e", "f", "g"];
 
-    // expect(() => query(l, "[]")).toThrow('TODO');
-    expect(() => query(l, "[zzz]")).toThrow('Not an int slice index: "zzz"');
-    expect(() => query(l, "[:zzz1]")).toThrow('Not an int slice index: "zzz1"');
-    expect(() => query(l, "[::zzz2]")).toThrow(
-      'Not an int slice index: "zzz2"'
-    );
     expect(first([], "")).toEqual(null);
     expect(first([], "[0]")).toEqual(null);
     expect(first([], "[2]")).toEqual(null);
@@ -531,6 +525,18 @@ describe("Jsqry tests", function () {
     expectException(function () {
       query(1, "id==?");
     }, _invalidPathElt);
+
+    const l = ["a", "b", "c", "d", "e", "f", "g"];
+
+    expect(() => query(l, "[]")).toThrow("Empty []");
+    expect(() => query(l, "a[ ]")).toThrow("Empty []");
+    expect(() => query(l, "{}}")).toThrow("Empty {}");
+    expect(() => query(l, "a{ }")).toThrow("Empty {}");
+    expect(() => query(l, "[zzz]")).toThrow('Not an int slice index: "zzz"');
+    expect(() => query(l, "[:zzz1]")).toThrow('Not an int slice index: "zzz1"');
+    expect(() => query(l, "[::zzz2]")).toThrow(
+      'Not an int slice index: "zzz2"'
+    );
   });
 
   function expectException(testFunc, regex) {

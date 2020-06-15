@@ -174,9 +174,10 @@
         depth_filter++;
       } else if (l === "]") {
         if (token.type === TYPE_PATH) throw "] without [";
-        if (token.type === TYPE_FILTER && --depth_filter === 0)
+        if (token.type === TYPE_FILTER && --depth_filter === 0) {
+          if (!token.val.trim()) throw "Empty []";
           startNewTok(TYPE_PATH);
-        else token.val += l;
+        } else token.val += l;
       } else if (l === "<" && next === "<") {
         i++;
         if (depth_nested_filter === 0 && token.type === TYPE_PATH)
@@ -195,9 +196,10 @@
         depth_map++;
       } else if (l === "}") {
         if (token.type === TYPE_PATH) throw "} without {";
-        if (token.type === TYPE_MAP && --depth_map === 0)
+        if (token.type === TYPE_MAP && --depth_map === 0) {
+          if (!token.val.trim()) throw "Empty {}";
           startNewTok(TYPE_PATH);
-        else token.val += l;
+        } else token.val += l;
       } else if (l === "(") {
         if (depth_call === 0 && token.type === TYPE_PATH) {
           token.call = token.val;
