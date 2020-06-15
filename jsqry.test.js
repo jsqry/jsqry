@@ -245,6 +245,10 @@ describe("Jsqry tests", function () {
     expect(query(l, "[::2]")).toEqual(["a", "c", "e", "g"]);
     expect(query(l, "[::-2]")).toEqual(["g", "e", "c", "a"]);
     expect(query(l, "[::2][::-1]")).toEqual(["g", "e", "c", "a"]);
+
+    expect(query(l, "[100]")).toEqual([]);
+    expect(query([1, undefined], "[:]")).toEqual([1]);
+    expect(query([1, null], "[:]")).toEqual([1, null]);
   });
 
   it("Should support super filtering", function () {
