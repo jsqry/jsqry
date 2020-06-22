@@ -230,7 +230,9 @@
         } else {
           token.val += l;
         }
-        depth_map++;
+        if (token.type === TYPE_MAP) {
+          depth_map++;
+        }
       } else if (l === "}") {
         if (token.type === TYPE_PATH) {
           throw "} without {";
