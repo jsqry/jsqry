@@ -676,5 +676,9 @@ describe("Jsqry tests", function () {
     expect(query([1], "{ [_] }[0]")).toEqual([[1]]);
 
     expect(query([1, 2], "[ {1:false,2:true}[_] ]{ _+1 }")).toEqual([3]);
+
+    expect(query([1.1, 2.2], "s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
+    expect(query([1.1, 2.2], "[  _  > 0 ]     s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
+    expect(query([1.1, 2.2], "[ (_) > 0 ]     s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
   });
 });

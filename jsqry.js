@@ -253,7 +253,9 @@
         } else {
           token.val += l;
         }
-        depth_call++;
+        if (token.type === TYPE_CALL) {
+          depth_call++;
+        }
       } else if (l === ")") {
         if (token.type === TYPE_PATH) {
           throw ") without (";
