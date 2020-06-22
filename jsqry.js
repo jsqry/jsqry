@@ -210,7 +210,9 @@
         } else {
           token.val += l;
         }
-        depth_nested_filter++;
+        if (token.type === TYPE_NESTED_FILTER) {
+          depth_nested_filter++;
+        }
       } else if (l === ">" && next === ">") {
         i++;
         if (token.type === TYPE_PATH) {

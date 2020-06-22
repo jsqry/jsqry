@@ -87,9 +87,11 @@ describe("Jsqry tests", function () {
     function f1(elt) {
       return elt > 2;
     }
+
     function f2(elt) {
       return elt + 10;
     }
+
     expect(query([1, 2, 3, 4, 5], "[ ?(_) ]{ ?(_) }", f1, f2)).toEqual([
       13,
       14,
@@ -212,6 +214,7 @@ describe("Jsqry tests", function () {
     expect(query(["a", "bb", "cCc", "DDdD"], "length")).toEqual([1, 2, 3, 4]);
     expect(query(PEOPLE, "name.length")).toEqual([4, 5, 4, 7, 7]);
   }
+
   it("Should pass basic tests (1st pass)", basicTests);
   it("Should pass basic tests (test caching)", basicTests);
   it("Should pass basic tests (caching = off)", () => {
@@ -678,7 +681,20 @@ describe("Jsqry tests", function () {
     expect(query([1, 2], "[ {1:false,2:true}[_] ]{ _+1 }")).toEqual([3]);
 
     expect(query([1.1, 2.2], "s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
-    expect(query([1.1, 2.2], "[  _  > 0 ]     s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
-    expect(query([1.1, 2.2], "[ (_) > 0 ]     s( -Math.floor(_) )")).toEqual([2.2, 1.1]);
+    expect(query([1.1, 2.2], "[  _  > 0 ]     s( -Math.floor(_) )")).toEqual([
+      2.2,
+      1.1,
+    ]);
+    expect(query([1.1, 2.2], "[ (_) > 0 ]     s( -Math.floor(_) )")).toEqual([
+      2.2,
+      1.1,
+    ]);
+
+    const inp1 = [
+      { id: 1, vals: [3, 4] },
+      { id: 2, vals: [1, 2, 10] },
+    ];
+    expect(query(inp1, "<<vals[_>5]>>.id")).toEqual([2]);
+    expect(query(inp1, "[ _.id<<2 ]<<vals[_>5]>>.id")).toEqual([2]);
   });
 });
