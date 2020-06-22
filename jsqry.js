@@ -108,15 +108,17 @@
             ? "("
             : "wtf")
         );
-      if (!val && prevType === TYPE_CALL)
+      if (!val && prevType === TYPE_CALL) {
         // handle 's()'
         val = token.val = "_";
+      }
       if (
         prevType === TYPE_PATH &&
         ((prevPrevType === TYPE_PATH && !val) ||
           (val !== "*" && !goodPathRe.test(val)))
-      )
+      ) {
         throw 'Illegal path element "' + val + '" at pos ' + i;
+      }
       if (val) {
         // handle prev token
         ast.push(token);
@@ -132,7 +134,9 @@
             for (let j = 0; j < idx.length; j++) {
               const v = idx[j].trim();
               const vI = parseInt(v);
-              if (v && isNaN(vI)) throw 'Not an int slice index: "' + v + '"';
+              if (v && isNaN(vI)) {
+                throw 'Not an int slice index: "' + v + '"';
+              }
               idx[j] = vI;
             }
           }
@@ -142,7 +146,9 @@
           token.func = function (e, i, args) {
             const res = _queryAst(e, _ast, args);
             for (let j = 0; j < res.length; j++) {
-              if (res[j]) return true;
+              if (res[j]) {
+                return true;
+              }
             }
             return false;
           };
@@ -160,67 +166,103 @@
       const l = expr[i],
         next = expr[i + 1];
       if (l === ".") {
-        if (token.type === TYPE_PATH) startNewTok(TYPE_PATH);
-        else token.val += l;
+        if (token.type === TYPE_PATH) {
+          startNewTok(TYPE_PATH);
+        } else {
+          token.val += l;
+        }
       } else if (l === "?" && token.type !== TYPE_PATH) {
         if (next === "?") {
           token.val += l;
           i++;
-        } else token.val += "args[" + arg_idx++ + "]";
+        } else {
+          token.val += "args[" + arg_idx++ + "]";
+        }
       } else if (l === "[") {
         if (depth_filter === 0 && token.type === TYPE_PATH)
           startNewTok(TYPE_FILTER);
         else token.val += l;
         depth_filter++;
       } else if (l === "]") {
-        if (token.type === TYPE_PATH) throw "] without [";
+        if (token.type === TYPE_PATH) {
+          throw "] without [";
+        }
         if (token.type === TYPE_FILTER && --depth_filter === 0) {
-          if (!token.val.trim()) throw "Empty []";
+          if (!token.val.trim()) {
+            throw "Empty []";
+          }
           startNewTok(TYPE_PATH);
         } else token.val += l;
       } else if (l === "<" && next === "<") {
         i++;
-        if (depth_nested_filter === 0 && token.type === TYPE_PATH)
+        if (depth_nested_filter === 0 && token.type === TYPE_PATH) {
           startNewTok(TYPE_NESTED_FILTER);
-        else token.val += l;
+        } else {
+          token.val += l;
+        }
         depth_nested_filter++;
       } else if (l === ">" && next === ">") {
         i++;
-        if (token.type === TYPE_PATH) throw ">> without <<";
+        if (token.type === TYPE_PATH) {
+          throw ">> without <<";
+        }
         if (token.type === TYPE_NESTED_FILTER && --depth_nested_filter === 0) {
-          if (!token.val.trim()) throw "Empty <<>>";
+          if (!token.val.trim()) {
+            throw "Empty <<>>";
+          }
           startNewTok(TYPE_PATH);
-        } else token.val += l;
+        } else {
+          token.val += l;
+        }
       } else if (l === "{") {
-        if (depth_map === 0 && token.type === TYPE_PATH) startNewTok(TYPE_MAP);
-        else token.val += l;
+        if (depth_map === 0 && token.type === TYPE_PATH) {
+          startNewTok(TYPE_MAP);
+        } else {
+          token.val += l;
+        }
         depth_map++;
       } else if (l === "}") {
-        if (token.type === TYPE_PATH) throw "} without {";
+        if (token.type === TYPE_PATH) {
+          throw "} without {";
+        }
         if (token.type === TYPE_MAP && --depth_map === 0) {
-          if (!token.val.trim()) throw "Empty {}";
+          if (!token.val.trim()) {
+            throw "Empty {}";
+          }
           startNewTok(TYPE_PATH);
-        } else token.val += l;
+        } else {
+          token.val += l;
+        }
       } else if (l === "(") {
         if (depth_call === 0 && token.type === TYPE_PATH) {
           token.call = token.val;
           token.val = "";
           token.type = TYPE_CALL;
-        } else token.val += l;
+        } else {
+          token.val += l;
+        }
         depth_call++;
       } else if (l === ")") {
-        if (token.type === TYPE_PATH) throw ") without (";
-        if (token.type === TYPE_CALL && --depth_call === 0)
+        if (token.type === TYPE_PATH) {
+          throw ") without (";
+        }
+        if (token.type === TYPE_CALL && --depth_call === 0) {
           startNewTok(TYPE_PATH);
-        else token.val += l;
-      } else token.val += l;
+        } else {
+          token.val += l;
+        }
+      } else {
+        token.val += l;
+      }
     }
 
     startNewTok(null); // close
 
     ast.args_count = arg_idx - arg_idx0;
 
-    if (jsqry.cache) jsqry.ast_cache[expr0] = ast;
+    if (jsqry.cache) {
+      jsqry.ast_cache[expr0] = ast;
+    }
     return ast;
   }
 
