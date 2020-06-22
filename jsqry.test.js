@@ -697,4 +697,9 @@ describe("Jsqry tests", function () {
     expect(query(inp1, "<<vals[_>5]>>.id")).toEqual([2]);
     expect(query(inp1, "[ _.id<<2 ]  <<vals[_>5]>>.id")).toEqual([2]);
   });
+
+  it("https://github.com/jsqry/jsqry/issues/13", () => {
+    expect(query([1, 2], "{ _ << 2 }")).toEqual([4, 8]);
+    expect(query([2, 4, 8], "{ _ >> 2 }")).toEqual([0, 1, 2]);
+  });
 });
