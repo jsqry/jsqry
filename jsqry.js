@@ -208,7 +208,7 @@
         if (depth_nested_filter === 0 && token.type === TYPE_PATH) {
           startNewTok(TYPE_NESTED_FILTER);
         } else {
-          token.val += l;
+          token.val += '<<';
         }
         if (token.type === TYPE_NESTED_FILTER) {
           depth_nested_filter++;
@@ -224,7 +224,7 @@
           }
           startNewTok(TYPE_PATH);
         } else {
-          token.val += l;
+          token.val += '>>';
         }
       } else if (l === "{") {
         if (depth_map === 0 && token.type === TYPE_PATH) {

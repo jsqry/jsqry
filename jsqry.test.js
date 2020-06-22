@@ -695,6 +695,6 @@ describe("Jsqry tests", function () {
       { id: 2, vals: [1, 2, 10] },
     ];
     expect(query(inp1, "<<vals[_>5]>>.id")).toEqual([2]);
-    expect(query(inp1, "[ _.id<<2 ]<<vals[_>5]>>.id")).toEqual([2]);
+    expect(query(inp1, "[ _.id<<2 ]  <<vals[_>5]>>.id")).toEqual([2]);
   });
 });
