@@ -26,6 +26,13 @@
   const TYPE_FILTER = 3;
   const TYPE_NESTED_FILTER = 4;
   const TYPE_MAP = 5;
+  const TYPE2STR = {
+    [TYPE_PATH]: "p",
+    [TYPE_FILTER]: "f",
+    [TYPE_NESTED_FILTER]: "F",
+    [TYPE_MAP]: "m",
+    [TYPE_CALL]: "c",
+  };
 
   const SUB_TYPE_FUNC = 1;
   const SUB_TYPE_INDEX = 2;
@@ -36,21 +43,10 @@
       const e = ast[i];
       const t = e.type;
       let v = e.val;
-      if (t === TYPE_CALL) v = e.call + "," + v;
-      res.push(
-        (t === TYPE_PATH
-          ? "p"
-          : t === TYPE_FILTER
-          ? "f"
-          : t === TYPE_NESTED_FILTER
-          ? "F"
-          : t === TYPE_MAP
-          ? "m"
-          : "c") +
-          "(" +
-          v +
-          ")"
-      );
+      if (t === TYPE_CALL) {
+        v = e.call + "," + v;
+      }
+      res.push(TYPE2STR[t] + "(" + v + ")");
     }
     return res.join(" ");
   }
@@ -73,7 +69,9 @@
 
   function parse(expr, arg_idx0) {
     let cached;
-    if (jsqry.cache && (cached = jsqry.ast_cache[expr])) return cached;
+    if (jsqry.cache && (cached = jsqry.ast_cache[expr])) {
+      return cached;
+    }
 
     const expr0 = expr;
     arg_idx0 = arg_idx0 || 0;
@@ -89,15 +87,20 @@
 
     function startNewTok(type) {
       let val = (token.val = token.val.trim());
+      // console.info(
+      //   `startNewTok ${TYPE2STR[type]} i=${i} "${expr.substr(i)}" val="${val}"`
+      // );
       const prevPrevType = prevType;
       prevType = token.type;
-      if (token.call) token.call = token.call.trim();
+      if (token.call) {
+        token.call = token.call.trim();
+      }
       if (
         type === null &&
         (prevType === TYPE_FILTER ||
           prevType === TYPE_MAP ||
           prevType === TYPE_CALL)
-      )
+      ) {
         throw (
           "Not closed " +
           (prevType === TYPE_FILTER
@@ -108,6 +111,7 @@
             ? "("
             : "wtf")
         );
+      }
       if (!val && prevType === TYPE_CALL) {
         // handle 's()'
         val = token.val = "_";
@@ -179,10 +183,14 @@
           token.val += "args[" + arg_idx++ + "]";
         }
       } else if (l === "[") {
-        if (depth_filter === 0 && token.type === TYPE_PATH)
+        if (depth_filter === 0 && token.type === TYPE_PATH) {
           startNewTok(TYPE_FILTER);
-        else token.val += l;
-        depth_filter++;
+        } else {
+          token.val += l;
+        }
+        if (token.type === TYPE_FILTER) {
+          depth_filter++;
+        }
       } else if (l === "]") {
         if (token.type === TYPE_PATH) {
           throw "] without [";
@@ -192,7 +200,9 @@
             throw "Empty []";
           }
           startNewTok(TYPE_PATH);
-        } else token.val += l;
+        } else {
+          token.val += l;
+        }
       } else if (l === "<" && next === "<") {
         i++;
         if (depth_nested_filter === 0 && token.type === TYPE_PATH) {

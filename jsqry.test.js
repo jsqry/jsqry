@@ -672,6 +672,7 @@ describe("Jsqry tests", function () {
   });
 
   it("https://github.com/jsqry/jsqry/issues/12", () => {
+    expect(query([1], "{[_]}[0]")).toEqual([[1]]);
     expect(query([1], "{ [_] }[0]")).toEqual([[1]]);
   });
 });
