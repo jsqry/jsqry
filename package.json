@@ -1,6 +1,6 @@
 {
   "name": "jsqry",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "jsqry.js",
   "types": "jsqry.d.ts",
   "description": "Simple lib to query JS objects/arrays",
