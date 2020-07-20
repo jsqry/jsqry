@@ -26,7 +26,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "prettier": "^2.0.5"
   }
 }
