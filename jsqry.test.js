@@ -164,8 +164,8 @@ describe("Jsqry tests", function () {
       19,
     ]);
 
-    expect(first(1, '{ "??" + _ + "??" }')).toEqual("?1?");
-    expect(first("How are you", '{ _ + ", " + ? + "??" }', "Peter")).toEqual(
+    expect(first(1, '{ "?" + _ + "?" }')).toEqual("?1?");
+    expect(first("How are you", '{ _ + ", " + ? + "?" }', "Peter")).toEqual(
       "How are you, Peter?"
     );
   });
@@ -622,6 +622,11 @@ describe("Jsqry tests", function () {
     ]);
   });
 
+  it("Should not handle placeholders in string literals", function () {
+    expect(query(1, "{ ? }", 2)).toEqual([2]);
+    expect(query(1, '{ "?" }')).toEqual(["?"]);
+  });
+
   it("Should support embedded queries", function () {
     const input = [
       {
@@ -646,6 +651,13 @@ describe("Jsqry tests", function () {
       query(
         input,
         '{ _.name + " : " + (f(_.props,"[_.key===`age`].val")||"") }'
+      )
+    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (f(_.props,"[_.key===?].val", "age")||"") }'
       )
     ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
   });

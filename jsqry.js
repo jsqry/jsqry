@@ -83,6 +83,7 @@
     let depth_map = 0; // nesting of {}
     let depth_call = 0; // nesting of ()
     let prevType = null;
+    let isInString = null;
     let i; // pos
 
     function startNewTok(type) {
@@ -168,7 +169,8 @@
 
     for (i = 0; i < expr.length; i++) {
       const l = expr[i],
-        next = expr[i + 1];
+        next = expr[i + 1],
+        prev = expr[i - 1];
       if (l === ".") {
         if (token.type === TYPE_PATH) {
           startNewTok(TYPE_PATH);
@@ -176,11 +178,15 @@
           token.val += l;
         }
       } else if (l === "?" && token.type !== TYPE_PATH) {
-        if (next === "?") {
-          token.val += l;
-          i++;
+        if (isInString === null) {
+          if (next === "?") {
+            token.val += l;
+            i++;
+          } else {
+            token.val += "args[" + arg_idx++ + "]";
+          }
         } else {
-          token.val += "args[" + arg_idx++ + "]";
+          token.val += l;
         }
       } else if (l === "[") {
         if (depth_filter === 0 && token.type === TYPE_PATH) {
@@ -267,6 +273,19 @@
         } else {
           token.val += l;
         }
+      } else if (
+        (l === '"' || l === "'" || l === "`") &&
+        token.type !== TYPE_PATH
+      ) {
+        if (isInString === l) {
+          if (prev !== "\\") {
+            isInString = null;
+          }
+        } else {
+          isInString = l;
+        }
+
+        token.val += l;
       } else {
         token.val += l;
       }
