@@ -164,8 +164,8 @@ describe("Jsqry tests", function () {
       19,
     ]);
 
-    expect(first(1, '{ "??" + _ + "??" }')).toEqual("?1?");
-    expect(first("How are you", '{ _ + ", " + ? + "??" }', "Peter")).toEqual(
+    expect(first(1, '{ "?" + _ + "?" }')).toEqual("?1?");
+    expect(first("How are you", '{ _ + ", " + ? + "?" }', "Peter")).toEqual(
       "How are you, Peter?"
     );
   });
@@ -619,6 +619,78 @@ describe("Jsqry tests", function () {
     expect(query([1, 2, 3, 4], "partition( _ % 2 )")).toEqual([
       [1, 3],
       [2, 4],
+    ]);
+  });
+
+  it("Should not handle placeholders in string literals", function () {
+    expect(query(1, "{ ? }", 2)).toEqual([2]);
+    expect(query(1, "{ '?' + ? }", 2)).toEqual(["?2"]);
+    expect(query(1, '{ "?" }')).toEqual(["?"]);
+    expect(query(1, "{ '?' }")).toEqual(["?"]);
+    expect(query(1, "{ `?` }")).toEqual(["?"]);
+    expect(query(1, "{ `? \"?\" '?' \\`?\\`` }")).toEqual(["? \"?\" '?' `?`"]);
+  });
+
+  it("Should support embedded queries", function () {
+    const input = [
+      {
+        name: "Alice",
+        props: [
+          { key: "age", val: 30 },
+          { key: "car", val: "Volvo" },
+        ],
+      },
+      { name: "Bob", props: [{ key: "age", val: 40 }] },
+      { name: "John", props: [] },
+    ];
+
+    const expected = ["Alice : 30", "Bob : 40", "John : "];
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (_.props.filter(p => p.key === "age")[0]||{val:""}).val }'
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (f(_.props,"[_.key===`age`].val")||"") }'
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (f(_.props,"[_.key===?].val", "age")||"") }'
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (f(_.props,"[_.key===?].val", ?)||?) }',
+        "age",
+        ""
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(input, '{ { name:_.name, car: q(_.props,"[_.key===`car`].val") } }')
+    ).toEqual([
+      {
+        car: ["Volvo"],
+        name: "Alice",
+      },
+      {
+        car: [],
+        name: "Bob",
+      },
+      {
+        car: [],
+        name: "John",
+      },
     ]);
   });
 

@@ -51,18 +51,14 @@
     return res.join(" ");
   }
 
-  function defined(v) {
-    return v !== undefined;
-  }
-
   function isArr(obj) {
     if (obj == null) return false;
-    return defined(obj.length) && typeof obj !== "string";
+    return obj.length !== undefined && typeof obj !== "string";
   }
 
   function funcToken(token) {
     token.sub_type = SUB_TYPE_FUNC;
-    token.func = Function("_,i,args", "return " + token.val);
+    token.func = Function("_,i,args,f,q", "return " + token.val);
   }
 
   const goodPathRe = /^[A-Za-z0-9_]*$/;
@@ -83,6 +79,7 @@
     let depth_map = 0; // nesting of {}
     let depth_call = 0; // nesting of ()
     let prevType = null;
+    let currStrQuote = null;
     let i; // pos
 
     function startNewTok(type) {
@@ -168,7 +165,8 @@
 
     for (i = 0; i < expr.length; i++) {
       const l = expr[i],
-        next = expr[i + 1];
+        next = expr[i + 1],
+        prev = expr[i - 1];
       if (l === ".") {
         if (token.type === TYPE_PATH) {
           startNewTok(TYPE_PATH);
@@ -176,11 +174,15 @@
           token.val += l;
         }
       } else if (l === "?" && token.type !== TYPE_PATH) {
-        if (next === "?") {
-          token.val += l;
-          i++;
+        if (currStrQuote === null) {
+          if (next === "?") {
+            token.val += l;
+            i++;
+          } else {
+            token.val += "args[" + arg_idx++ + "]";
+          }
         } else {
-          token.val += "args[" + arg_idx++ + "]";
+          token.val += l;
         }
       } else if (l === "[") {
         if (depth_filter === 0 && token.type === TYPE_PATH) {
@@ -208,7 +210,7 @@
         if (depth_nested_filter === 0 && token.type === TYPE_PATH) {
           startNewTok(TYPE_NESTED_FILTER);
         } else {
-          token.val += '<<';
+          token.val += "<<";
         }
         if (token.type === TYPE_NESTED_FILTER) {
           depth_nested_filter++;
@@ -224,7 +226,7 @@
           }
           startNewTok(TYPE_PATH);
         } else {
-          token.val += '>>';
+          token.val += ">>";
         }
       } else if (l === "{") {
         if (depth_map === 0 && token.type === TYPE_PATH) {
@@ -267,6 +269,19 @@
         } else {
           token.val += l;
         }
+      } else if (
+        (l === '"' || l === "'" || l === "`") &&
+        token.type !== TYPE_PATH
+      ) {
+        if (currStrQuote === l) {
+          if (prev !== "\\") {
+            currStrQuote = null;
+          }
+        } else {
+          currStrQuote = l;
+        }
+
+        token.val += l;
       } else {
         token.val += l;
       }
@@ -319,7 +334,7 @@
     const len = list.length;
     if (idx_cnt === 1) {
       const val = list[normIdx(1, index[0], len)];
-      if (defined(val)) res.push(val);
+      if (val !== undefined) res.push(val);
     } else if (idx_cnt >= 2) {
       let step = idx_cnt === 3 ? index[2] : 1;
       if (isNaN(step)) step = 1;
@@ -327,7 +342,7 @@
       const to = normIdx(0, index[1], len, step);
       for (let i = from; step > 0 ? i < to : i > to; i += step) {
         const val = list[i];
-        if (defined(val)) res.push(val);
+        if (val !== undefined) res.push(val);
       }
     }
     return res;
@@ -366,6 +381,7 @@
       res.push([g[0], g[1]]);
     }
   };
+
   function exec(data, token, args) {
     // console.log('Exec', data, token);
     let res = [];
@@ -373,7 +389,7 @@
     function _applyFunc() {
       for (let i = 0; i < data.length; i++) {
         const v = data[i];
-        if (token.func(v, i, args)) {
+        if (token.func(v, i, args, first, query)) {
           res.push(v);
         }
       }
@@ -382,14 +398,14 @@
     if (token.type === TYPE_PATH) {
       for (let i = 0; i < data.length; i++) {
         let v = (data[i] || {})[token.val];
-        if (!defined(v) && "*" === token.val) {
+        if (v === undefined && "*" === token.val) {
           v = data[i];
         }
         if (isArr(v)) {
           for (let j = 0; j < v.length; j++) {
             res.push(v[j]);
           }
-        } else if (defined(v) && v !== null) {
+        } else if (v !== undefined && v !== null) {
           res.push(v);
         }
       }
@@ -401,7 +417,7 @@
       _applyFunc();
     } else if (token.type === TYPE_MAP) {
       for (let i = 0; i < data.length; i++) {
-        res.push(token.func(data[i], i, args));
+        res.push(token.func(data[i], i, args, first, query));
       }
     } else if (token.type === TYPE_CALL) {
       const fname = token.call;
@@ -410,7 +426,7 @@
       const pairs = [];
       for (let i = 0; i < data.length; i++) {
         const v = data[i];
-        pairs.push([v, token.func(v, i, args)]);
+        pairs.push([v, token.func(v, i, args, first, query)]);
       }
       f(pairs, res);
     }
