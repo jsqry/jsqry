@@ -51,13 +51,9 @@
     return res.join(" ");
   }
 
-  function defined(v) {
-    return v !== undefined;
-  }
-
   function isArr(obj) {
     if (obj == null) return false;
-    return defined(obj.length) && typeof obj !== "string";
+    return obj.length !== undefined && typeof obj !== "string";
   }
 
   function funcToken(token) {
@@ -338,7 +334,7 @@
     const len = list.length;
     if (idx_cnt === 1) {
       const val = list[normIdx(1, index[0], len)];
-      if (defined(val)) res.push(val);
+      if (val !== undefined) res.push(val);
     } else if (idx_cnt >= 2) {
       let step = idx_cnt === 3 ? index[2] : 1;
       if (isNaN(step)) step = 1;
@@ -346,7 +342,7 @@
       const to = normIdx(0, index[1], len, step);
       for (let i = from; step > 0 ? i < to : i > to; i += step) {
         const val = list[i];
-        if (defined(val)) res.push(val);
+        if (val !== undefined) res.push(val);
       }
     }
     return res;
@@ -402,14 +398,14 @@
     if (token.type === TYPE_PATH) {
       for (let i = 0; i < data.length; i++) {
         let v = (data[i] || {})[token.val];
-        if (!defined(v) && "*" === token.val) {
+        if (v === undefined && "*" === token.val) {
           v = data[i];
         }
         if (isArr(v)) {
           for (let j = 0; j < v.length; j++) {
             res.push(v[j]);
           }
-        } else if (defined(v) && v !== null) {
+        } else if (v !== undefined && v !== null) {
           res.push(v);
         }
       }
