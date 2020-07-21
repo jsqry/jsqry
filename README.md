@@ -54,3 +54,4 @@ yarn add jsqry
 ```html
 <script src="https://cdn.jsdelivr.net/npm/jsqry@1.2.2/jsqry.js"></script>
 ```
+
