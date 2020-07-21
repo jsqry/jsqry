@@ -670,6 +670,13 @@ describe("Jsqry tests", function () {
     expect(
       query(
         input,
+        '{ [_.name, f(_.props,"[_.key===?].val", "age") || ""].join(" : ") }'
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(
+        input,
         '{ _.name + " : " + (f(_.props,"[_.key===?].val", ?)||?) }',
         "age",
         ""
