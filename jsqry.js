@@ -62,7 +62,7 @@
 
   function funcToken(token) {
     token.sub_type = SUB_TYPE_FUNC;
-    token.func = Function("_,i,args", "return " + token.val);
+    token.func = Function("_,i,args,f,q", "return " + token.val);
   }
 
   const goodPathRe = /^[A-Za-z0-9_]*$/;
@@ -208,7 +208,7 @@
         if (depth_nested_filter === 0 && token.type === TYPE_PATH) {
           startNewTok(TYPE_NESTED_FILTER);
         } else {
-          token.val += '<<';
+          token.val += "<<";
         }
         if (token.type === TYPE_NESTED_FILTER) {
           depth_nested_filter++;
@@ -224,7 +224,7 @@
           }
           startNewTok(TYPE_PATH);
         } else {
-          token.val += '>>';
+          token.val += ">>";
         }
       } else if (l === "{") {
         if (depth_map === 0 && token.type === TYPE_PATH) {
@@ -366,6 +366,7 @@
       res.push([g[0], g[1]]);
     }
   };
+
   function exec(data, token, args) {
     // console.log('Exec', data, token);
     let res = [];
@@ -373,7 +374,7 @@
     function _applyFunc() {
       for (let i = 0; i < data.length; i++) {
         const v = data[i];
-        if (token.func(v, i, args)) {
+        if (token.func(v, i, args, first, query)) {
           res.push(v);
         }
       }
@@ -401,7 +402,7 @@
       _applyFunc();
     } else if (token.type === TYPE_MAP) {
       for (let i = 0; i < data.length; i++) {
-        res.push(token.func(data[i], i, args));
+        res.push(token.func(data[i], i, args, first, query));
       }
     } else if (token.type === TYPE_CALL) {
       const fname = token.call;
@@ -410,7 +411,7 @@
       const pairs = [];
       for (let i = 0; i < data.length; i++) {
         const v = data[i];
-        pairs.push([v, token.func(v, i, args)]);
+        pairs.push([v, token.func(v, i, args, first, query)]);
       }
       f(pairs, res);
     }

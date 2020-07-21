@@ -622,6 +622,34 @@ describe("Jsqry tests", function () {
     ]);
   });
 
+  it("Should support embedded queries", function () {
+    const input = [
+      {
+        name: "Alice",
+        props: [
+          { key: "age", val: 30 },
+          { key: "car", val: "Volvo" },
+        ],
+      },
+      { name: "Bob", props: [{ key: "age", val: 40 }] },
+      { name: "John", props: [] },
+    ];
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (_.props.filter(p => p.key === "age")[0]||{val:""}).val }'
+      )
+    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + f(_.props,"[_.key===`age`].age{_||``}") }'
+      )
+    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+  });
+
   it("Should support tricks", function () {
     // zip
     expect(
