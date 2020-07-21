@@ -644,26 +644,54 @@ describe("Jsqry tests", function () {
       { name: "John", props: [] },
     ];
 
+    const expected = ["Alice : 30", "Bob : 40", "John : "];
+
     expect(
       query(
         input,
         '{ _.name + " : " + (_.props.filter(p => p.key === "age")[0]||{val:""}).val }'
       )
-    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+    ).toEqual(expected);
 
     expect(
       query(
         input,
         '{ _.name + " : " + (f(_.props,"[_.key===`age`].val")||"") }'
       )
-    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+    ).toEqual(expected);
 
     expect(
       query(
         input,
         '{ _.name + " : " + (f(_.props,"[_.key===?].val", "age")||"") }'
       )
-    ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
+    ).toEqual(expected);
+
+    expect(
+      query(
+        input,
+        '{ _.name + " : " + (f(_.props,"[_.key===?].val", ?)||?) }',
+        "age",
+        ""
+      )
+    ).toEqual(expected);
+
+    expect(
+      query(input, '{ { name:_.name, car: q(_.props,"[_.key===`car`].val") } }')
+    ).toEqual([
+      {
+        car: ["Volvo"],
+        name: "Alice",
+      },
+      {
+        car: [],
+        name: "Bob",
+      },
+      {
+        car: [],
+        name: "John",
+      },
+    ]);
   });
 
   it("Should support tricks", function () {
