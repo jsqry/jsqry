@@ -83,7 +83,7 @@
     let depth_map = 0; // nesting of {}
     let depth_call = 0; // nesting of ()
     let prevType = null;
-    let isInString = null;
+    let currStrQuote = null;
     let i; // pos
 
     function startNewTok(type) {
@@ -178,7 +178,7 @@
           token.val += l;
         }
       } else if (l === "?" && token.type !== TYPE_PATH) {
-        if (isInString === null) {
+        if (currStrQuote === null) {
           if (next === "?") {
             token.val += l;
             i++;
@@ -277,12 +277,12 @@
         (l === '"' || l === "'" || l === "`") &&
         token.type !== TYPE_PATH
       ) {
-        if (isInString === l) {
+        if (currStrQuote === l) {
           if (prev !== "\\") {
-            isInString = null;
+            currStrQuote = null;
           }
         } else {
-          isInString = l;
+          currStrQuote = l;
         }
 
         token.val += l;

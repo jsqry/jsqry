@@ -624,7 +624,11 @@ describe("Jsqry tests", function () {
 
   it("Should not handle placeholders in string literals", function () {
     expect(query(1, "{ ? }", 2)).toEqual([2]);
+    expect(query(1, "{ '?' + ? }", 2)).toEqual(["?2"]);
     expect(query(1, '{ "?" }')).toEqual(["?"]);
+    expect(query(1, "{ '?' }")).toEqual(["?"]);
+    expect(query(1, "{ `?` }")).toEqual(["?"]);
+    expect(query(1, "{ `? \"?\" '?' \\`?\\`` }")).toEqual(["? \"?\" '?' `?`"]);
   });
 
   it("Should support embedded queries", function () {
