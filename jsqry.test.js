@@ -645,7 +645,7 @@ describe("Jsqry tests", function () {
     expect(
       query(
         input,
-        '{ _.name + " : " + f(_.props,"[_.key===`age`].age{_||``}") }'
+        '{ _.name + " : " + (f(_.props,"[_.key===`age`].val")||"") }'
       )
     ).toEqual(["Alice : 30", "Bob : 40", "John : "]);
   });
