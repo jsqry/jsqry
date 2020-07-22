@@ -1,4 +1,4 @@
-const jsqry = require("./jsqry");
+const jsqry = require(`./jsqry${process.env.MINIFY ? ".min" : ""}`);
 
 describe("Jsqry tests", function () {
   const query = jsqry.query;
