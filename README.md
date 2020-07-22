@@ -52,5 +52,5 @@ yarn add jsqry
 #### Web
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/jsqry@1.2.2/jsqry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqry@1.2.3/jsqry.js"></script>
 ```
