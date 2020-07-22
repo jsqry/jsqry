@@ -6,3 +6,7 @@ jsqry-*.tgz
 
 node_modules/
 coverage/
+
+bench.js
+jsqry-repl.sh
+.github/
