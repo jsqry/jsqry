@@ -23,7 +23,8 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage",
-    "minify-and-check": "terser jsqry.js -o jsqry.min.js && MINIFY=1 jest && echo '---MINIFICATION SUCCESS---' || echo '!!!MINIFICATION ERROR!!!'"
+    "minify-and-check": "terser jsqry.js -o jsqry.min.js && MINIFY=1 jest && echo '---MINIFICATION SUCCESS---' || exit 1",
+    "prepare-and-publish": "npm run minify-and-check && npm publish"
   },
   "dependencies": {},
   "devDependencies": {
