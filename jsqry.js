@@ -311,7 +311,10 @@
 
   function _queryAst(obj, ast, args) {
     if (!obj) return [];
-    if (!isArr(obj)) obj = [obj];
+    if (!isArr(obj)) {
+      obj = [obj];
+      obj._$single = true;
+    }
 
     for (let i = 0; i < ast.length; i++) {
       obj = exec(obj, ast[i], args);
@@ -330,6 +333,7 @@
   function calcIndex(list, index) {
     // console.info('idx', list, index)
     const res = [];
+    if (list._$single) res._$single = true;
     const idx_cnt = index.length;
     const len = list.length;
     if (idx_cnt === 1) {
@@ -385,6 +389,7 @@
   function exec(data, token, args) {
     // console.log('Exec', data, token);
     let res = [];
+    if (data._$single) res._$single = true;
 
     function _applyFunc() {
       for (let i = 0; i < data.length; i++) {
@@ -402,6 +407,7 @@
           v = data[i];
         }
         if (isArr(v)) {
+          delete res._$single;
           for (let j = 0; j < v.length; j++) {
             res.push(v[j]);
           }
@@ -410,9 +416,11 @@
         }
       }
     } else if (token.type === TYPE_FILTER) {
-      if (token.sub_type === SUB_TYPE_FUNC) _applyFunc();
-      else if (token.sub_type === SUB_TYPE_INDEX)
+      if (token.sub_type === SUB_TYPE_FUNC) {
+        _applyFunc();
+      } else if (token.sub_type === SUB_TYPE_INDEX) {
         res = calcIndex(data, token.index);
+      }
     } else if (token.type === TYPE_NESTED_FILTER) {
       _applyFunc();
     } else if (token.type === TYPE_MAP) {
