@@ -781,4 +781,36 @@ describe("Jsqry tests", function () {
     expect(query([1, 2], "{ _ << 2 }")).toEqual([4, 8]);
     expect(query([2, 4, 8], "{ _ >> 2 }")).toEqual([0, 1, 2]);
   });
+
+  it("should have a way to distinguish querying of object vs array", () => {
+    function single(a) {
+      a._$single = true;
+      return a;
+    }
+    expect(jsqry.queryWithSingleMarker(1, "")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "s()")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "s()")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "[-1]")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "[-1]")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "[_>0]")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "[_>0]")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a.u()")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a.u()")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: { b: 1 } }, "a.b")).toEqual(
+      single([1])
+    );
+    expect(jsqry.queryWithSingleMarker({ a: [{ b: 1 }] }, "a.b")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker([{ a: [{ b: 1 }] }], "a.b")).toEqual([
+      1,
+    ]);
+    expect(jsqry.queryWithSingleMarker({ a: [1] }, "a")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a[_ > 2]")).toEqual(
+      single([])
+    );
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a[_ > 2]")).toEqual([]);
+    expect(jsqry.queryWithSingleMarker({ a: [1] }, "a[_ > 2]")).toEqual([]);
+  });
 });
