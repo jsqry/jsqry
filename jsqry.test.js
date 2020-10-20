@@ -789,8 +789,16 @@ describe("Jsqry tests", function () {
     }
     expect(jsqry.queryWithSingleMarker(1, "")).toEqual(single([1]));
     expect(jsqry.queryWithSingleMarker([1], "")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "s()")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "s()")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "[-1]")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "[-1]")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker(1, "[_>0]")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "[_>0]")).toEqual([1]);
     expect(jsqry.queryWithSingleMarker({ a: 1 }, "a")).toEqual(single([1]));
     expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a.u()")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a.u()")).toEqual([1]);
     expect(jsqry.queryWithSingleMarker({ a: { b: 1 } }, "a.b")).toEqual(
       single([1])
     );
