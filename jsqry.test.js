@@ -1,19 +1,5 @@
 const jsqry = require(`./jsqry${process.env.MINIFY ? ".min" : ""}`);
 
-expect.extend({
-  toEqualArray(received, expected) {
-    return JSON.stringify(received) === JSON.stringify(expected)
-      ? {
-          pass: true,
-          message: `Expected ${received} not to equal ${expected}`,
-        }
-      : {
-          pass: false,
-          message: `Expected ${received} to equal ${expected}`,
-        };
-  },
-});
-
 describe("Jsqry tests", function () {
   const query = jsqry.query;
   const first = jsqry.first;
@@ -84,7 +70,7 @@ describe("Jsqry tests", function () {
       "c",
     ]);
 
-    expect(query(100, "{?+?+?+?}", 1, 2, 3, 4)).toEqualArray([10]);
+    expect(query(100, "{?+?+?+?}", 1, 2, 3, 4)).toEqual([10]);
     expect(function () {
       query(100, "{?+?+?+?}", 1, 2);
     }).toThrow("Wrong args count");
@@ -637,12 +623,12 @@ describe("Jsqry tests", function () {
   });
 
   it("Should not handle placeholders in string literals", function () {
-    expect(query(1, "{ ? }", 2)).toEqualArray([2]);
-    expect(query(1, "{ '?' + ? }", 2)).toEqualArray(["?2"]);
-    expect(query(1, '{ "?" }')).toEqualArray(["?"]);
-    expect(query(1, "{ '?' }")).toEqualArray(["?"]);
-    expect(query(1, "{ `?` }")).toEqualArray(["?"]);
-    expect(query(1, "{ `? \"?\" '?' \\`?\\`` }")).toEqualArray(["? \"?\" '?' `?`"]);
+    expect(query(1, "{ ? }", 2)).toEqual([2]);
+    expect(query(1, "{ '?' + ? }", 2)).toEqual(["?2"]);
+    expect(query(1, '{ "?" }')).toEqual(["?"]);
+    expect(query(1, "{ '?' }")).toEqual(["?"]);
+    expect(query(1, "{ `?` }")).toEqual(["?"]);
+    expect(query(1, "{ `? \"?\" '?' \\`?\\`` }")).toEqual(["? \"?\" '?' `?`"]);
   });
 
   it("Should support embedded queries", function () {
@@ -794,5 +780,29 @@ describe("Jsqry tests", function () {
   it("https://github.com/jsqry/jsqry/issues/13", () => {
     expect(query([1, 2], "{ _ << 2 }")).toEqual([4, 8]);
     expect(query([2, 4, 8], "{ _ >> 2 }")).toEqual([0, 1, 2]);
+  });
+
+  it("should have a way to distinguish querying of object vs array", () => {
+    function single(a) {
+      a._$single = true;
+      return a;
+    }
+    expect(jsqry.queryWithSingleMarker(1, "")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([1], "")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a")).toEqual(single([1]));
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: { b: 1 } }, "a.b")).toEqual(
+      single([1])
+    );
+    expect(jsqry.queryWithSingleMarker({ a: [{ b: 1 }] }, "a.b")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker([{ a: [{ b: 1 }] }], "a.b")).toEqual([
+      1,
+    ]);
+    expect(jsqry.queryWithSingleMarker({ a: [1] }, "a")).toEqual([1]);
+    expect(jsqry.queryWithSingleMarker({ a: 1 }, "a[_ > 2]")).toEqual(
+      single([])
+    );
+    expect(jsqry.queryWithSingleMarker([{ a: 1 }], "a[_ > 2]")).toEqual([]);
+    expect(jsqry.queryWithSingleMarker({ a: [1] }, "a[_ > 2]")).toEqual([]);
   });
 });

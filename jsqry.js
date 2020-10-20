@@ -12,13 +12,14 @@
 })(this, function (undefined) {
   const fn = {};
   const jsqry = {
-    first: first,
-    query: query,
+    first,
+    query,
+    queryWithSingleMarker,
     cache: true,
     ast_cache: {},
-    fn: fn,
-    parse: parse,
-    printAst: printAst,
+    fn,
+    parse,
+    printAst,
   };
 
   const TYPE_PATH = 1;
@@ -303,6 +304,12 @@
   }
 
   function query(obj, expr) {
+    const res = queryWithSingleMarker.apply(null, arguments);
+    delete res._$single;
+    return res;
+  }
+
+  function queryWithSingleMarker(obj, expr) {
     const args = Array.prototype.slice.call(arguments, 2);
     const ast = jsqry.parse(expr);
     if (args.length !== ast.args_count) throw "Wrong args count";
